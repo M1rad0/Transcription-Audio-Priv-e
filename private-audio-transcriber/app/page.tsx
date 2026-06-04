@@ -1,65 +1,63 @@
-import Image from "next/image";
+import { logoutAction } from "@/app/actions/auth";
+import { Card } from "@/components/ui/card";
+import { LogoMark } from "@/components/ui/logo-mark";
+import { StatusPill } from "@/components/ui/status-pill";
+import { PreflightUploadCard } from "@/components/upload/preflight-upload-card";
+import { requireSession } from "@/lib/auth";
+import { ALLOWED_AUDIO_EXTENSIONS, getMaxAudioSizeMb } from "@/lib/transcribe";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const session = await requireSession();
+  const maxAudioSizeMb = getMaxAudioSizeMb();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef4f9_100%)] px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <LogoMark compact />
+            <div>
+              <p className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+                Transcription Audio Privée
+              </p>
+              <p className="text-sm text-[var(--muted)]">
+                Connecte en tant que {session.username}
+              </p>
+            </div>
+          </div>
+
+          <form action={logoutAction}>
+            <button className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50">
+              Se déconnecter
+            </button>
+          </form>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        <Card className="overflow-hidden bg-white px-5 py-6 sm:px-7 sm:py-7">
+          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+            <StatusPill tone="success">Importer un audio</StatusPill>
+
+            <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              Déposez votre fichier et lancez le traitement.
+            </h1>
+
+            <div className="mt-5 w-full">
+              <PreflightUploadCard
+                allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}
+                maxAudioSizeMb={maxAudioSizeMb}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-[var(--muted)]">
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-2">
+                Formats : {ALLOWED_AUDIO_EXTENSIONS.join(", ")}
+              </span>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </main>
   );
 }

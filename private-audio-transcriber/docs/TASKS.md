@@ -15,7 +15,7 @@ Rule used here:
   - Acceptance: All requested files exist and align with `AGENTS.md` as the source of truth.
   - Notes: Completed in the current documentation-only step.
 
-- [ ] T-026 - Validate documentation before any coding
+- [x] T-026 - Validate documentation before any coding
   - Scope: Review documentation with the user and resolve open clarifications before implementation starts.
   - Acceptance: Documentation is approved and blockers are explicitly resolved or deferred.
   - Notes: Coding must not start before this task is validated.
@@ -32,29 +32,29 @@ Rule used here:
 
 ## Next.js app setup
 
-- [ ] T-001 - Initialize the Next.js App Router TypeScript app structure
+- [x] T-001 - Initialize the Next.js App Router TypeScript app structure
   - Scope: Prepare the application base structure for app pages, shared components, and server-side utilities.
   - Acceptance: The app structure is ready for auth, upload, validation, and BFF work.
-  - Notes: The repository currently contains a minimal starter app and still needs the target structure from `AGENTS.md`.
+  - Notes: Core `app/`, `components/`, `lib/`, and protected route structure are now in place for the V1 shell.
 
 ## Authentication
 
-- [ ] T-003 - Implement local login and signed session handling
+- [x] T-003 - Implement local login and signed session handling
   - Scope: Add `/login`, validate credentials from environment variables, issue an HTTP-only signed session cookie, and add logout if simple.
   - Acceptance: Protected routes reject unauthenticated users and permit authenticated users.
-  - Notes: No OAuth, Keycloak, user database, or complex role management in V1.
+  - Notes: Implemented with server-side `bcrypt` verification and a signed HTTP-only cookie.
 
 ## Upload UI
 
-- [ ] T-017 - Create the upload interface
+- [x] T-017 - Create the upload interface
   - Scope: Add audio file selection or drag-and-drop, show selected file metadata, and apply client-side format and size prechecks.
   - Acceptance: Unsupported files are rejected with clear messages before submission.
-  - Notes: Client checks are convenience only; the BFF remains authoritative.
+  - Notes: The current UI handles client preflight and hands off to the protected BFF route for server-side validation.
 
-- [ ] T-018 - Display processing state to the user
+- [x] T-018 - Display processing state to the user
   - Scope: Show states such as validating, encrypting, uploading, running, completed, and failed.
   - Acceptance: Users can understand where the job is in the flow.
-  - Notes: Useful for cold starts and cost-aware user expectations.
+  - Notes: Preflight states are implemented now; encryption and RunPod execution states will be added with the next tranche.
 
 - [ ] T-019 - Display raw and modified outputs
   - Scope: Present `raw_text` and `modified_text` clearly after successful jobs.
@@ -63,15 +63,15 @@ Rule used here:
 
 ## File validation
 
-- [ ] T-004 - Guard `/api/transcribe` before any RunPod call
+- [x] T-004 - Guard `/api/transcribe` before any RunPod call
   - Scope: Require auth, require POST, reject unsupported extensions, reject files above 12 MB, and block invalid requests early.
   - Acceptance: RunPod is never called when validation fails.
-  - Notes: This is part of the main anti-cost barrier.
+  - Notes: The route now rejects unauthenticated access and blocks invalid uploads before any future worker call.
 
-- [ ] T-005 - Add simple quota controls in the BFF
+- [x] T-005 - Add simple quota controls in the BFF
   - Scope: Support one active job at a time, daily job limits if configured, and daily usage controls that still allow the target volume of about 120 audio minutes per day.
   - Acceptance: Quota violations return clear errors without reaching RunPod, while the intended daily usage target remains supportable from the first V1 implementation phase.
-  - Notes: The BFF is the main anti-cost barrier and quota behavior must be designed from the start.
+  - Notes: Simple in-memory concurrency and daily job counters are now wired into the BFF guard layer for V1.
 
 ## Encryption
 

@@ -125,7 +125,7 @@ export function HistoryView({
         title="Résultats enregistrés"
       >
         <details
-          className="rounded-[20px] border border-slate-200 bg-slate-50/80"
+          className="rounded-[20px] border border-slate-200 bg-white shadow-sm shadow-slate-200/70"
           open={hasActiveFilters}
         >
           <summary className="flex list-none items-center justify-between gap-3 px-3 py-3 text-sm font-semibold text-slate-900 marker:hidden">
@@ -223,7 +223,7 @@ export function HistoryView({
               <div className="flex justify-end gap-2">
                 <button
                   aria-label="Rechercher"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-sky-200 bg-[linear-gradient(135deg,#38bdf8,#0ea5e9)] text-white shadow-[0_12px_24px_rgba(14,165,233,0.18)] hover:-translate-y-0.5 hover:shadow-[0_16px_28px_rgba(14,165,233,0.24)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-sky-500 bg-sky-500 text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md hover:shadow-sky-200/80"
                   title="Rechercher"
                 >
                   <SearchIcon className="h-4 w-4" />
@@ -262,7 +262,7 @@ export function HistoryView({
                       "rounded-[24px] border px-4 py-3 text-left transition-colors",
                       isActive
                         ? "border-sky-200 bg-sky-50"
-                        : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white",
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50",
                     )}
                     href={buildHistoryHref(filters, {
                       jobId: item.jobId,
@@ -277,11 +277,11 @@ export function HistoryView({
                             {item.firstName} {item.lastName}
                           </p>
                           <span className="h-1 w-1 shrink-0 rounded-full bg-slate-300" />
-                          <span className="shrink-0 text-sm text-[var(--muted)]">
+                          <span className="shrink-0 text-sm text-slate-500">
                             {new Date(item.createdAt).toLocaleDateString("fr-FR")}
                           </span>
                         </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--muted)]">
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                           <p className="min-w-0 truncate">{item.originalFilename}</p>
                           {item.durationSeconds ? (
                             <span className="shrink-0">{item.durationSeconds}s</span>
@@ -302,7 +302,7 @@ export function HistoryView({
             </div>
 
             <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-3">
-              <p className="text-sm text-[var(--muted)]">
+              <p className="text-sm text-slate-500">
                 Page {history.page} sur {history.totalPages}
               </p>
               <div className="flex gap-2">
@@ -311,7 +311,7 @@ export function HistoryView({
                   className={cn(
                     "inline-flex h-10 w-10 items-center justify-center rounded-2xl border text-sm font-semibold",
                     history.page <= 1
-                      ? "pointer-events-none border-slate-200 bg-slate-100 text-slate-400"
+                      ? "pointer-events-none border-slate-200 bg-white text-slate-400"
                       : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
                   )}
                   href={buildHistoryHref(filters, {
@@ -327,7 +327,7 @@ export function HistoryView({
                   className={cn(
                     "inline-flex h-10 w-10 items-center justify-center rounded-2xl border text-sm font-semibold",
                     history.page >= history.totalPages
-                      ? "pointer-events-none border-slate-200 bg-slate-100 text-slate-400"
+                      ? "pointer-events-none border-slate-200 bg-white text-slate-400"
                       : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
                   )}
                   href={buildHistoryHref(filters, {
@@ -342,7 +342,7 @@ export function HistoryView({
             </div>
           </div>
         ) : (
-          <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center text-sm text-[var(--muted)]">
+          <div className="rounded-[24px] border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500">
             Aucun traitement réussi n’est encore disponible dans l’historique local.
           </div>
         )}
@@ -352,11 +352,11 @@ export function HistoryView({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <Link
             aria-label="Fermer le détail du traitement"
-            className="absolute inset-0 bg-slate-950/36 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-slate-950/20 backdrop-blur-[2px]"
             href={closeModalHref}
           />
 
-          <div className="relative z-10 flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.18)]">
+          <div className="relative z-10 flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-2xl shadow-slate-300/60">
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 sm:px-6">
               <div className="min-w-0">
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.32em] text-sky-700/70">
@@ -365,7 +365,7 @@ export function HistoryView({
                 <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
                   {selectedJob.firstName} {selectedJob.lastName}
                 </h3>
-                <p className="mt-1 truncate text-sm text-[var(--muted)]">
+                <p className="mt-1 truncate text-sm text-slate-500">
                   {selectedJob.originalFilename}
                 </p>
               </div>
@@ -386,26 +386,26 @@ export function HistoryView({
 
             <div className="grid gap-4 overflow-y-auto px-5 py-5 sm:px-6">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+                <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
                   <p className="text-sm font-semibold text-slate-900">Traité le</p>
-                  <p className="mt-2 text-sm text-[var(--muted-strong)]">
+                  <p className="mt-2 text-sm text-slate-600">
                     {selectedJob.createdAtLabel}
                   </p>
                 </div>
 
                 {selectedJob.durationSeconds ? (
-                  <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+                  <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
                     <p className="text-sm font-semibold text-slate-900">Durée</p>
-                    <p className="mt-2 text-sm text-[var(--muted-strong)]">
+                    <p className="mt-2 text-sm text-slate-600">
                       {selectedJob.durationSeconds}s
                     </p>
                   </div>
                 ) : null}
 
                 {selectedJob.engine ? (
-                  <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+                  <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
                     <p className="text-sm font-semibold text-slate-900">Moteur</p>
-                    <p className="mt-2 text-sm text-[var(--muted-strong)]">
+                    <p className="mt-2 text-sm text-slate-600">
                       {selectedJob.engine}
                     </p>
                   </div>

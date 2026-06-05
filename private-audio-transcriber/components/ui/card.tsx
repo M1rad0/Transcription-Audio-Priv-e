@@ -20,7 +20,7 @@ export function Card({
   return (
     <section
       className={cn(
-        "rounded-[28px] border border-[var(--card-border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-xl)] backdrop-blur-xl",
+        "relative isolate overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70",
         className,
       )}
       {...props}
@@ -39,7 +39,7 @@ export function Card({
               </h2>
             ) : null}
             {description ? (
-              <p className="max-w-2xl text-sm leading-6 text-[var(--muted-strong)]">
+              <p className="max-w-2xl text-sm leading-6 text-slate-600">
                 {description}
               </p>
             ) : null}

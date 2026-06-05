@@ -30,7 +30,7 @@ export function TextField({
       {error ? (
         <span className="text-sm text-orange-700">{error}</span>
       ) : helper ? (
-        <span className="text-sm text-[var(--muted)]">{helper}</span>
+        <span className="text-sm text-slate-500">{helper}</span>
       ) : null}
     </label>
   );

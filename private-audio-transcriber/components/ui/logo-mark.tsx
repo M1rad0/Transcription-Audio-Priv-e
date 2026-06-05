@@ -8,8 +8,8 @@ type LogoMarkProps = {
 export function LogoMark({ className, compact = false }: LogoMarkProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(160deg,#ffffff,#e7f4fb)] shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
-        <div className="absolute inset-[6px] rounded-[14px] border border-white bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(255,255,255,0.45)_58%,transparent_100%)]" />
+      <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-sky-100 shadow-sm shadow-slate-200">
+        <div className="absolute inset-[6px] rounded-[14px] border border-white bg-white/70" />
         <div className="relative flex w-6 flex-col gap-1.5">
           <span className="h-1.5 rounded-full bg-slate-700" />
           <span className="h-1.5 w-5 rounded-full bg-sky-400" />

@@ -61,7 +61,7 @@ function LogoutIcon() {
 export function SidebarNav({ currentTab, username }: SidebarNavProps) {
   return (
     <aside className="lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)]">
-      <div className="flex h-full min-h-[16rem] flex-col rounded-[28px] border border-[var(--card-border)] bg-[var(--surface-strong)] p-5 shadow-[var(--shadow-xl)] backdrop-blur-xl">
+      <div className="flex h-full min-h-[16rem] flex-col rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/70">
         <div className="border-b border-slate-200/80 pb-5">
           <LogoMark />
         </div>
@@ -73,10 +73,10 @@ export function SidebarNav({ currentTab, username }: SidebarNavProps) {
             return (
               <Link
                 className={cn(
-                  "rounded-[24px] border px-4 py-4 text-left shadow-sm",
+                  "rounded-[24px] border px-4 py-4 text-left",
                   isActive
                     ? "border-sky-200 bg-sky-50 text-sky-950"
-                    : "border-slate-200 bg-white/90 text-slate-800 hover:border-slate-300 hover:bg-white",
+                    : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
                 )}
                 href={item.href}
                 key={item.key}
@@ -85,7 +85,7 @@ export function SidebarNav({ currentTab, username }: SidebarNavProps) {
                 <p
                   className={cn(
                     "mt-1 text-sm",
-                    isActive ? "text-sky-900/75" : "text-[var(--muted)]",
+                    isActive ? "text-sky-900/75" : "text-slate-500",
                   )}
                 >
                   {item.description}
@@ -107,6 +107,7 @@ export function SidebarNav({ currentTab, username }: SidebarNavProps) {
               aria-label="Se déconnecter"
               className="h-11 w-11 rounded-2xl px-0"
               title="Se déconnecter"
+              type="submit"
               variant="secondary"
             >
               <LogoutIcon />

@@ -1,65 +1,115 @@
-import Image from "next/image";
+import { SidebarNav } from "@/components/app/sidebar-nav";
+import { HistoryView } from "@/components/history/history-view";
+import { Card } from "@/components/ui/card";
+import { StatusPill } from "@/components/ui/status-pill";
+import { PreflightUploadCard } from "@/components/upload/preflight-upload-card";
+import { requireSession } from "@/lib/auth";
+import { getStoredJob, listStoredJobs } from "@/lib/jobs";
+import { ALLOWED_AUDIO_EXTENSIONS, getMaxAudioSizeMb } from "@/lib/transcribe";
+import { parsePositiveInt } from "@/lib/utils";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+type HomePageProps = PageProps<"/">;
+
+function getSingleValue(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const session = await requireSession();
+  const params = await searchParams;
+  const tab = getSingleValue(params.tab) === "history" ? "history" : "treatment";
+  const maxAudioSizeMb = getMaxAudioSizeMb();
+
+  const historyFilters = {
+    date: getSingleValue(params.date) ?? "",
+    dateFrom: getSingleValue(params.dateFrom) ?? "",
+    dateTo: getSingleValue(params.dateTo) ?? "",
+    firstName: getSingleValue(params.firstName) ?? "",
+    lastName: getSingleValue(params.lastName) ?? "",
+    originalFilename: getSingleValue(params.originalFilename) ?? "",
+    page: parsePositiveInt(getSingleValue(params.page), 1) ?? 1,
+  };
+
+  const history =
+    tab === "history"
+      ? await listStoredJobs({
+          date: historyFilters.date || undefined,
+          dateFrom: historyFilters.dateFrom || undefined,
+          dateTo: historyFilters.dateTo || undefined,
+          firstName: historyFilters.firstName || undefined,
+          lastName: historyFilters.lastName || undefined,
+          originalFilename: historyFilters.originalFilename || undefined,
+          page: historyFilters.page,
+        })
+      : null;
+
+  const selectedJobId = getSingleValue(params.jobId);
+  const selectedJob =
+    tab === "history" && selectedJobId
+      ? await (async () => {
+          try {
+            return await getStoredJob(selectedJobId);
+          } catch {
+            return null;
+          }
+        })()
+      : null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="box-border min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef4f9_100%)] px-4 py-4 sm:px-6 lg:h-screen lg:overflow-hidden lg:px-8">
+      <div className="mx-auto grid w-full max-w-[1600px] gap-4 lg:h-full lg:grid-cols-[20.5rem_minmax(0,1fr)]">
+        <SidebarNav currentTab={tab} username={session.username} />
+
+        <section className="grid min-h-0 gap-4">
+          {tab === "treatment" ? (
+            <Card
+              actions={
+                <div className="flex flex-wrap justify-end gap-1.5 text-xs text-[var(--muted)]">
+                  <StatusPill tone="success">Mode mock local</StatusPill>
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+                    Formats {ALLOWED_AUDIO_EXTENSIONS.join(", ")}
+                  </span>
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+                    Max {maxAudioSizeMb} Mo
+                  </span>
+                </div>
+              }
+              className="bg-white lg:flex lg:h-[calc(100vh-2rem)] lg:flex-col lg:overflow-hidden"
+              eyebrow="Traitement"
+              title="Lancer une transcription"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              <div className="grid w-full gap-4 lg:min-h-0 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
+                <p className="text-sm leading-6 text-[var(--muted-strong)]">
+                  Importez un audio, vérifiez le résultat, puis retrouvez-le ensuite dans l’historique local.
+                </p>
+                <PreflightUploadCard
+                  allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}
+                  maxAudioSizeMb={maxAudioSizeMb}
+                />
+              </div>
+            </Card>
+          ) : history ? (
+            <div className="min-h-0">
+              <HistoryView
+                filters={{
+                  date: historyFilters.date,
+                  dateFrom: historyFilters.dateFrom,
+                  dateTo: historyFilters.dateTo,
+                  firstName: historyFilters.firstName,
+                  lastName: historyFilters.lastName,
+                  originalFilename: historyFilters.originalFilename,
+                }}
+                history={history}
+                selectedJob={selectedJob}
+              />
+            </div>
+          ) : null}
+        </section>
+      </div>
+    </main>
   );
 }

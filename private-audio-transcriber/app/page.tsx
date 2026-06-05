@@ -3,8 +3,8 @@ import { HistoryView } from "@/components/history/history-view";
 import { Card } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { PreflightUploadCard } from "@/components/upload/preflight-upload-card";
-import { getStoredJob, listStoredJobs } from "@/lib/jobs";
 import { requireSession } from "@/lib/auth";
+import { getStoredJob, listStoredJobs } from "@/lib/jobs";
 import { ALLOWED_AUDIO_EXTENSIONS, getMaxAudioSizeMb } from "@/lib/transcribe";
 import { parsePositiveInt } from "@/lib/utils";
 
@@ -84,7 +84,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             >
               <div className="grid w-full gap-4 lg:min-h-0 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
                 <p className="text-sm leading-6 text-[var(--muted-strong)]">
-                  Importez un audio, verifiez le resultat, puis retrouvez-le ensuite dans l historique local.
+                  Importez un audio, vérifiez le résultat, puis retrouvez-le ensuite dans l’historique local.
                 </p>
                 <PreflightUploadCard
                   allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}

@@ -71,10 +71,10 @@ export function TextPreviewPanel({
           <div className="flex flex-wrap gap-2">
             {shouldCollapse ? (
               <Button
-                aria-label={isExpanded ? "Reduire le texte" : "Voir plus de texte"}
+                aria-label={isExpanded ? "Réduire le texte" : "Voir plus de texte"}
                 className="h-10 w-10 rounded-xl px-0"
                 onClick={() => setIsExpanded((current) => !current)}
-                title={isExpanded ? "Reduire" : "Voir plus"}
+                title={isExpanded ? "Réduire" : "Voir plus"}
                 type="button"
                 variant="ghost"
               >
@@ -83,19 +83,19 @@ export function TextPreviewPanel({
                 ) : (
                   <ChevronDownIcon className="h-5 w-5" />
                 )}
-                <span className="sr-only">{isExpanded ? "Reduire" : "Voir plus"}</span>
+                <span className="sr-only">{isExpanded ? "Réduire" : "Voir plus"}</span>
               </Button>
             ) : null}
             <Button
-              aria-label={`Ouvrir ${title} en plein ecran`}
+              aria-label={`Ouvrir ${title} en plein écran`}
               className="h-11 w-11 rounded-xl px-0"
               onClick={() => setIsFocusOpen(true)}
-              title="Plein ecran"
+              title="Plein écran"
               type="button"
               variant="secondary"
             >
               <ExpandIcon className="h-6 w-6" />
-              <span className="sr-only">Plein ecran</span>
+              <span className="sr-only">Plein écran</span>
             </Button>
           </div>
         </div>
@@ -118,7 +118,7 @@ export function TextPreviewPanel({
       {isFocusOpen ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <button
-            aria-label={`Fermer la vue plein ecran de ${title}`}
+            aria-label={`Fermer la vue plein écran de ${title}`}
             className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]"
             onClick={() => setIsFocusOpen(false)}
             type="button"
@@ -141,10 +141,10 @@ export function TextPreviewPanel({
               <div className="flex flex-wrap gap-2">
                 {shouldCollapse ? (
                   <Button
-                    aria-label={isExpanded ? "Reduire l apercu" : "Etendre l apercu"}
+                    aria-label={isExpanded ? "Réduire l’aperçu" : "Étendre l’aperçu"}
                     className="h-11 w-11 rounded-xl px-0"
                     onClick={() => setIsExpanded((current) => !current)}
-                    title={isExpanded ? "Reduire l apercu" : "Etendre l apercu"}
+                    title={isExpanded ? "Réduire l’aperçu" : "Étendre l’aperçu"}
                     type="button"
                     variant="ghost"
                   >
@@ -154,7 +154,7 @@ export function TextPreviewPanel({
                       <ChevronDownIcon className="h-5 w-5" />
                     )}
                     <span className="sr-only">
-                      {isExpanded ? "Reduire l apercu" : "Etendre l apercu"}
+                      {isExpanded ? "Réduire l’aperçu" : "Étendre l’aperçu"}
                     </span>
                   </Button>
                 ) : null}

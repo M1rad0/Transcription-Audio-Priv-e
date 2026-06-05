@@ -16,12 +16,12 @@ export default async function LoginPage() {
           <div className="mx-auto flex max-w-md flex-col items-center text-center">
             <LogoMark compact />
             <div className="mt-6 space-y-3">
-              <StatusPill tone="success">Acces securise</StatusPill>
+              <StatusPill tone="success">Accès sécurisé</StatusPill>
               <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                Transcription Audio Privee
+                Transcription Audio Privée
               </h1>
               <p className="mx-auto max-w-sm text-sm leading-6 text-[var(--muted-strong)] sm:text-base">
-                Connectez-vous pour acceder a votre espace local protege.
+                Connectez-vous pour accéder à votre espace local protégé.
               </p>
             </div>
 

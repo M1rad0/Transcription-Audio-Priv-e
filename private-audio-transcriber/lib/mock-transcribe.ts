@@ -36,15 +36,15 @@ export function buildMockTranscriptionResult({
   const durationSeconds = Math.max(30, Math.round(fileSize / 24000));
   const rawText = [
     `Transcription mock locale pour ${firstName} ${lastName}.`,
-    `Fichier traite : ${fileName}.`,
-    "Cette sortie sert a valider le flux traitement et historique avant l integration RunPod reelle.",
+    `Fichier traité : ${fileName}.`,
+    "Cette sortie sert à valider le flux traitement et historique avant l’intégration RunPod réelle.",
   ].join("\n");
 
   const modifiedText = [
     `Transcription mock pour ${firstName} ${lastName}.`,
     "",
-    `Le fichier ${fileName} a ete traite localement dans le mode de validation actuel.`,
-    "Cette version restructure legerement le texte afin de simuler le rendu final attendu apres correction.",
+    `Le fichier ${fileName} a été traité localement dans le mode de validation actuel.`,
+    "Cette version restructure légèrement le texte afin de simuler le rendu final attendu après correction.",
   ].join("\n");
 
   return {
@@ -68,7 +68,7 @@ export function buildMockTranscriptionResult({
       {
         end: Math.max(16, Math.round(durationSeconds * 0.7)),
         start: Math.max(8, Math.round(durationSeconds * 0.35)),
-        text: `Fichier traite : ${fileName}.`,
+        text: `Fichier traité : ${fileName}.`,
       },
       {
         end: durationSeconds,

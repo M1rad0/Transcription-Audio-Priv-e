@@ -17,7 +17,7 @@ const NAV_ITEMS = [
     label: "Traitement",
   },
   {
-    description: "Consulter les resultats locaux",
+    description: "Consulter les résultats locaux",
     href: "/?tab=history",
     key: "history",
     label: "Historique",
@@ -98,15 +98,15 @@ export function SidebarNav({ currentTab, username }: SidebarNavProps) {
         <div className="mt-auto flex items-start justify-between gap-3 border-t border-slate-200/80 pt-5">
           <div className="min-w-0 max-w-[11rem]">
             <p className="text-sm leading-5 text-slate-900">
-              Connecte en tant que <span className="font-semibold">{username}</span>
+              Connecté en tant que <span className="font-semibold">{username}</span>
             </p>
           </div>
 
           <form action={logoutAction}>
             <Button
-              aria-label="Se deconnecter"
+              aria-label="Se déconnecter"
               className="h-11 w-11 rounded-2xl px-0"
-              title="Se deconnecter"
+              title="Se déconnecter"
               variant="secondary"
             >
               <LogoutIcon />

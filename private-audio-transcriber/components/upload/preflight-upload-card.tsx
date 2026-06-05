@@ -60,13 +60,13 @@ function HistoryLink({
 }) {
   return (
     <a
-      aria-label="Ouvrir dans l historique"
+      aria-label="Ouvrir dans l’historique"
       className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50"
       href={href}
-      title="Ouvrir dans l historique"
+      title="Ouvrir dans l’historique"
     >
       <HistoryIcon className="h-4 w-4" />
-      <span className="sr-only">Ouvrir dans l historique</span>
+      <span className="sr-only">Ouvrir dans l’historique</span>
     </a>
   );
 }
@@ -91,7 +91,7 @@ export function PreflightUploadCard({
     if (!firstName.trim()) {
       return {
         ok: false as const,
-        message: "Le prenom est requis pour lancer le traitement.",
+        message: "Le prénom est requis pour lancer le traitement.",
       };
     }
 
@@ -109,7 +109,7 @@ export function PreflightUploadCard({
     if (!nextFile) {
       return {
         ok: false as const,
-        message: "Selectionnez un fichier audio pour continuer.",
+        message: "Sélectionnez un fichier audio pour continuer.",
       };
     }
 
@@ -121,14 +121,14 @@ export function PreflightUploadCard({
     if (!allowedExtensions.includes(extension)) {
       return {
         ok: false as const,
-        message: `Type de fichier non pris en charge. Formats autorises : ${allowedExtensions.join(", ")}`,
+        message: `Type de fichier non pris en charge. Formats autorisés : ${allowedExtensions.join(", ")}`,
       };
     }
 
     if (nextFile.size > maxAudioSizeBytes) {
       return {
         ok: false as const,
-        message: `Le fichier depasse la limite de ${maxAudioSizeMb} Mo.`,
+        message: `Le fichier dépasse la limite de ${maxAudioSizeMb} Mo.`,
       };
     }
 
@@ -158,7 +158,7 @@ export function PreflightUploadCard({
     if (!currentFile) {
       setUploadResult(null);
       setUploadState({
-        message: "Selectionnez un fichier audio pour continuer.",
+        message: "Sélectionnez un fichier audio pour continuer.",
         tone: "danger",
       });
       return;
@@ -188,7 +188,7 @@ export function PreflightUploadCard({
         const errorPayload = payload as { error?: string };
         setUploadResult(null);
         setUploadState({
-          message: errorPayload.error ?? "La requete a echoue.",
+          message: errorPayload.error ?? "La requête a échoué.",
           tone: response.status === 429 ? "warning" : "danger",
         });
         return;
@@ -199,13 +199,13 @@ export function PreflightUploadCard({
       setUploadResult(completedPayload);
       setUploadState({
         message:
-          "Le traitement mock est termine et le resultat a ete sauvegarde dans l historique local.",
+          "Le traitement mock est terminé et le résultat a été sauvegardé dans l’historique local.",
         tone: "success",
       });
     } catch {
       setUploadResult(null);
       setUploadState({
-        message: "La requete n a pas pu joindre l application locale.",
+        message: "La requête n’a pas pu joindre l’application locale.",
         tone: "danger",
       });
     } finally {
@@ -228,7 +228,7 @@ export function PreflightUploadCard({
           <div className="grid gap-4 md:grid-cols-2">
             <TextField
               autoComplete="given-name"
-              label="Prenom"
+              label="Prénom"
               onChange={(event) => setFirstName(event.target.value)}
               placeholder="Ex. Jean"
               required
@@ -272,7 +272,7 @@ export function PreflightUploadCard({
                 }
 
                 setUploadState({
-                  message: "Fichier selectionne. Vous pouvez continuer.",
+                  message: "Fichier sélectionné. Vous pouvez continuer.",
                   tone: "success",
                 });
               }}
@@ -280,7 +280,7 @@ export function PreflightUploadCard({
             />
 
             <span className="mb-3 rounded-full border border-slate-200 bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.28em] text-sky-700/80">
-              Selection audio
+              Sélection audio
             </span>
             <p className="max-w-md text-lg font-semibold tracking-tight text-slate-900">
               Cliquez pour choisir un fichier audio.
@@ -295,12 +295,12 @@ export function PreflightUploadCard({
           <div className="grid gap-3 rounded-[24px] border border-slate-200 bg-slate-50 p-4">
             <div className="space-y-2">
               <p className="text-sm font-medium text-slate-800">
-                Fichier selectionne
+                Fichier sélectionné
               </p>
               <p className="break-words text-sm text-[var(--muted-strong)]">
                 {file
                   ? `${file.name} (${formatBytes(file.size)})`
-                  : "Aucun fichier selectionne pour le moment."}
+                  : "Aucun fichier sélectionné pour le moment."}
               </p>
             </div>
 
@@ -319,9 +319,9 @@ export function PreflightUploadCard({
               <div className="mb-2">
                 <StatusPill tone={uploadState.tone}>
                   {uploadState.tone === "danger"
-                    ? "Bloque"
+                    ? "Bloqué"
                     : uploadState.tone === "success"
-                      ? "Pret"
+                      ? "Prêt"
                       : uploadState.tone === "warning"
                         ? "Attention"
                         : "En cours"}
@@ -333,9 +333,9 @@ export function PreflightUploadCard({
             </div>
           ) : (
             <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm font-medium text-slate-800">Etat</p>
+              <p className="text-sm font-medium text-slate-800">État</p>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-strong)]">
-                Ajoutez le fichier et les informations demandees, puis lancez le traitement.
+                Ajoutez le fichier et les informations demandées, puis lancez le traitement.
               </p>
             </div>
           )}
@@ -347,10 +347,10 @@ export function PreflightUploadCard({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-lg font-semibold text-slate-900">
-                Resultat disponible pour {uploadResult.firstName} {uploadResult.lastName}
+                Résultat disponible pour {uploadResult.firstName} {uploadResult.lastName}
               </p>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                Job {uploadResult.jobId} enregistre dans l historique local.
+                Job {uploadResult.jobId} enregistré dans l’historique local.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -377,7 +377,7 @@ export function PreflightUploadCard({
             <TextPreviewPanel content={uploadResult.rawText} title="Texte brut" />
             <TextPreviewPanel
               content={uploadResult.modifiedText}
-              title="Texte restructure"
+              title="Texte restructuré"
             />
           </div>
         </div>

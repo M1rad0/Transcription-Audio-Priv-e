@@ -120,9 +120,9 @@ export function HistoryView({
     <div className="grid gap-4 lg:h-[calc(100vh-2rem)] lg:grid-rows-[auto_minmax(0,1fr)]">
       <Card
         className="bg-white p-4"
-        description="Recherchez rapidement dans les traitements sauvegardes localement."
+        description="Recherchez rapidement dans les traitements sauvegardés localement."
         eyebrow="Historique"
-        title="Resultats enregistres"
+        title="Résultats enregistrés"
       >
         <details
           className="rounded-[20px] border border-slate-200 bg-slate-50/80"
@@ -149,7 +149,7 @@ export function HistoryView({
               <div className="grid gap-2 lg:grid-cols-2 xl:grid-cols-[0.82fr_0.82fr_1.45fr_0.95fr_0.95fr_0.95fr]">
                 <label className="grid min-w-0 gap-1.5">
                   <span className="truncate text-[10px] font-medium uppercase tracking-[0.12em] text-slate-600">
-                    Prenom
+                    Prénom
                   </span>
                   <input
                     className={inputClassName}
@@ -179,7 +179,7 @@ export function HistoryView({
                     className={inputClassName}
                     defaultValue={filters.originalFilename}
                     name="originalFilename"
-                    placeholder="Ex. reunion.mp3"
+                    placeholder="Ex. réunion.mp3"
                   />
                 </label>
 
@@ -197,7 +197,7 @@ export function HistoryView({
 
                 <label className="grid min-w-0 gap-1.5">
                   <span className="truncate text-[10px] font-medium uppercase tracking-[0.12em] text-slate-600">
-                    Date de debut
+                    Date de début
                   </span>
                   <input
                     className={inputClassName}
@@ -230,13 +230,13 @@ export function HistoryView({
                   <span className="sr-only">Rechercher</span>
                 </button>
                 <Link
-                  aria-label="Reinitialiser"
+                  aria-label="Réinitialiser"
                   className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50"
                   href="/?tab=history"
-                  title="Reinitialiser"
+                  title="Réinitialiser"
                 >
                   <ResetIcon className="h-4 w-4" />
-                  <span className="sr-only">Reinitialiser</span>
+                  <span className="sr-only">Réinitialiser</span>
                 </Link>
               </div>
             </div>
@@ -246,9 +246,9 @@ export function HistoryView({
 
       <Card
         className="bg-white p-4 lg:flex lg:min-h-0 lg:flex-col"
-        description={`${history.totalItems} traitement(s) local(aux) trouve(s).`}
+        description={`${history.totalItems} traitement(s) local(aux) trouvé(s).`}
         eyebrow="Liste"
-        title="Traitements precedents"
+        title="Traitements précédents"
       >
         {hasResults ? (
           <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)_auto]">
@@ -293,7 +293,7 @@ export function HistoryView({
                       </div>
 
                       <div className="shrink-0 pt-0.5">
-                        <StatusPill tone="success">Succes</StatusPill>
+                        <StatusPill tone="success">Succès</StatusPill>
                       </div>
                     </div>
                   </Link>
@@ -317,10 +317,10 @@ export function HistoryView({
                   href={buildHistoryHref(filters, {
                     page: Math.max(1, history.page - 1),
                   })}
-                  title="Page precedente"
+                  title="Page précédente"
                 >
                   <ArrowLeftIcon className="h-4 w-4" />
-                  <span className="sr-only">Precedent</span>
+                  <span className="sr-only">Précédent</span>
                 </Link>
                 <Link
                   aria-disabled={history.page >= history.totalPages}
@@ -343,7 +343,7 @@ export function HistoryView({
           </div>
         ) : (
           <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center text-sm text-[var(--muted)]">
-            Aucun traitement reussi n est encore disponible dans l historique local.
+            Aucun traitement réussi n’est encore disponible dans l’historique local.
           </div>
         )}
       </Card>
@@ -351,7 +351,7 @@ export function HistoryView({
       {selectedJob ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <Link
-            aria-label="Fermer le detail du traitement"
+            aria-label="Fermer le détail du traitement"
             className="absolute inset-0 bg-slate-950/36 backdrop-blur-[2px]"
             href={closeModalHref}
           />
@@ -360,7 +360,7 @@ export function HistoryView({
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 sm:px-6">
               <div className="min-w-0">
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.32em] text-sky-700/70">
-                  Detail
+                  Détail
                 </p>
                 <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
                   {selectedJob.firstName} {selectedJob.lastName}
@@ -371,7 +371,7 @@ export function HistoryView({
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <StatusPill tone="success">Succes</StatusPill>
+                <StatusPill tone="success">Succès</StatusPill>
                 <Link
                   aria-label="Fermer"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50"
@@ -387,7 +387,7 @@ export function HistoryView({
             <div className="grid gap-4 overflow-y-auto px-5 py-5 sm:px-6">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
                 <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-900">Traite le</p>
+                  <p className="text-sm font-semibold text-slate-900">Traité le</p>
                   <p className="mt-2 text-sm text-[var(--muted-strong)]">
                     {selectedJob.createdAtLabel}
                   </p>
@@ -395,7 +395,7 @@ export function HistoryView({
 
                 {selectedJob.durationSeconds ? (
                   <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-sm font-semibold text-slate-900">Duree</p>
+                    <p className="text-sm font-semibold text-slate-900">Durée</p>
                     <p className="mt-2 text-sm text-[var(--muted-strong)]">
                       {selectedJob.durationSeconds}s
                     </p>
@@ -430,7 +430,7 @@ export function HistoryView({
                 <TextPreviewPanel content={selectedJob.rawText} title="Texte brut" />
                 <TextPreviewPanel
                   content={selectedJob.modifiedText}
-                  title="Texte restructure"
+                  title="Texte restructuré"
                 />
               </div>
             </div>

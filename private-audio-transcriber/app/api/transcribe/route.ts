@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const file = formData.get("file");
-  const firstName = getRequiredText(formData, "firstName", "Le prenom");
+  const firstName = getRequiredText(formData, "firstName", "Le prénom");
   const lastName = getRequiredText(formData, "lastName", "Le nom");
 
   if (!firstName.ok) {
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Le traitement local n a pas pu etre enregistre dans l historique.",
+          "Le traitement local n’a pas pu être enregistré dans l’historique.",
       },
       { status: 500 },
     );

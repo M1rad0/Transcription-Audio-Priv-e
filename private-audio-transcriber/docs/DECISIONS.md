@@ -28,7 +28,7 @@ Decision precedence:
 | `D-015` | Make the RunPod timeout configurable. | The deployment context is not fixed enough yet to commit to a single numeric timeout. | The timeout is still mandatory, but its exact value will be finalized during operational benchmarking. | Final |
 | `D-016` | Defer UI cost estimation to V2. | It is not required for the first secure end-to-end transcription release. | V1 focuses on the workflow itself, while cost display is postponed. | Final |
 | `D-017` | Design quotas from the start so V1 can support about 120 minutes per day. | The target operating volume should be supported from the beginning rather than retrofitted later. | BFF quota rules must avoid blocking the intended daily usage envelope. | Final |
-| `D-018` | Add two main authenticated tabs in V1: `Traitement` and `Historique`. | The workflow now needs both immediate processing and later retrieval without turning V1 into a more complex product tier. | The protected app shell must expose both live processing and local history as first-class flows. | Final |
+| `D-018` | Add a sidebar-based authenticated navigation in V1 with `Traitement` and `Historique`. | The workflow now needs both immediate processing and later retrieval, and the preferred desktop navigation pattern is a sidebar rather than a top header. | The protected app shell must expose both live processing and local history as first-class sidebar flows. | Final |
 | `D-019` | Use local file storage under `/storage/jobs/{job_id}` for history in V1. | It is the simplest approach that satisfies the new history requirement while staying consistent with the local-first and no-database-by-default direction. | The Next.js BFF must persist `metadata.json`, `raw.txt`, `modified.txt`, and `result.json` on the local filesystem. | Final |
 | `D-020` | Do not require a database for history in V1. | The expected V1 usage volume and history complexity do not justify introducing a database immediately. | History can ship with simple local file persistence first. | Final |
 | `D-021` | Never persist the original or encrypted audio in history. | History only needs the textual outputs and minimum retrieval metadata; keeping audio would weaken the privacy posture. | Local storage must retain only text artifacts and necessary metadata after processing. | Final |
@@ -111,6 +111,10 @@ Exact-day filtering helps when the user remembers a specific treatment date, whi
 ### Why pagination is prepared from V1
 
 Even with local file storage, the history view can become unwieldy if it assumes the full archive is always loaded at once. Pagination readiness keeps the interface stable and avoids a breaking redesign once volume grows.
+
+### Why the main navigation uses a sidebar
+
+The product is desktop-first and now includes two main authenticated areas. A sidebar is a better fit than a top header for stable navigation, future expansion, and clearer separation between treatment and history.
 
 ### Why SQLite is deferred rather than rejected
 

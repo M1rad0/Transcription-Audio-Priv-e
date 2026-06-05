@@ -73,7 +73,7 @@ Browser
 ### Tab 1: Treatment
 
 1. The user opens the local application and logs in.
-2. The authenticated user lands on a simple app with two main tabs: `Traitement` and `Historique`.
+2. The authenticated user lands on a simple app with a sidebar navigation exposing two main entries: `Traitement` and `Historique`.
 3. In `Traitement`, the user uploads one supported audio file.
 4. The user must enter at minimum:
    - `first_name`
@@ -139,7 +139,7 @@ Included in V1:
 - Next.js API routes as BFF;
 - simple local authentication with signed HTTP-only session cookie;
 - protected main page and protected `/api/transcribe`;
-- two main authenticated tabs: `Traitement` and `Historique`;
+- a sidebar-based authenticated navigation exposing `Traitement` and `Historique`;
 - required `first_name` and `last_name` fields associated with each transcription job;
 - file validation and anti-abuse checks before any RunPod call;
 - AES-256-GCM encryption with HKDF-derived per-file key;
@@ -218,7 +218,7 @@ Key final decisions from `AGENTS.md` and the updated product direction:
 - `D-012`: Use `MAX_CONCURRENT_JOBS` as the concurrency variable name in documentation.
 - `D-013`: Keep RunPod timeout configurable and finalize the numeric value during deployment benchmarking.
 - `D-014`: Defer cost estimation in the UI to V2.
-- `D-018`: Include two authenticated tabs in V1: `Traitement` and `Historique`.
+- `D-018`: Include two authenticated sidebar navigation entries in V1: `Traitement` and `Historique`.
 - `D-019`: Use local file storage under `/storage/jobs/{job_id}` for transcription history in V1.
 - `D-020`: Do not require a database for history in V1; add SQLite later only if history complexity grows.
 - `D-021`: Never persist original audio or encrypted audio in history; persist only text outputs and necessary metadata.

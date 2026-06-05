@@ -47,8 +47,8 @@ Rule used here:
 ## App shell and tabs
 
 - [ ] T-029 - Create the authenticated two-tab application shell
-  - Scope: Replace the single primary view with two main tabs named `Traitement` and `Historique`.
-  - Acceptance: An authenticated user can switch between the processing flow and the local history flow without leaving the protected app.
+  - Scope: Replace the single primary view with a protected sidebar navigation exposing `Traitement` and `Historique`.
+  - Acceptance: An authenticated user can switch between the processing flow and the local history flow from the sidebar without leaving the protected app.
   - Notes: This is a V1 product change, not a V2 enhancement.
 
 ## Treatment tab

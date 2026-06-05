@@ -57,3 +57,7 @@ RunPod worker variables:
 - The documentation intentionally uses `MAX_CONCURRENT_JOBS` to match the Excel backlog naming.
 - `RUNPOD_ENDPOINT_ID` remains a deployment-provided identifier whose exact format depends on RunPod.
 - `MAX_AUDIO_SIZE_MB` should be explicitly set to `12` in runtime configuration for V1 clarity.
+
+## Clarifications needed
+
+- `AGENTS.md` names `ALLOW_CONCURRENT_JOBS`, while the current approved backlog direction kept `MAX_CONCURRENT_JOBS`. Reconfirm the final runtime variable name before continuing implementation that depends on concurrency configuration.

@@ -5,15 +5,15 @@ This file tracks implementation work for V1.
 Rule used here:
 
 - Excel task IDs are preserved when available.
-- New IDs were added only for gaps required by `AGENTS.md` but not explicitly listed in the Excel backlog.
-- Checkboxes reflect documentation state only. No application code has been implemented in this step.
+- New IDs were added only for gaps required by `AGENTS.md` or later validated V1 product decisions.
+- Checkboxes reflect documentation state only. No application code has been implemented in this documentation step.
 
 ## Documentation setup
 
 - [x] T-025 - Create initial project documentation under `docs/`
   - Scope: Create `PROJECT_CONTEXT.md`, `TASKS.md`, `TEST_PLAN.md`, `SECURITY_CHECKLIST.md`, `RUNPOD_SETUP.md`, `ENVIRONMENT.md`, and `DECISIONS.md`.
   - Acceptance: All requested files exist and align with `AGENTS.md` as the source of truth.
-  - Notes: Completed in the current documentation-only step.
+  - Notes: Completed in the documentation-only step.
 
 - [x] T-026 - Validate documentation before any coding
   - Scope: Review documentation with the user and resolve open clarifications before implementation starts.
@@ -26,7 +26,7 @@ Rule used here:
   - Notes: Excel maps this mainly to README-level documentation, not yet done.
 
 - [ ] T-024 - Document the privacy and security promise honestly
-  - Scope: Explain encrypted transport, temporary worker decryption, no external transcription API, and cleanup limits.
+  - Scope: Explain encrypted transport, temporary worker decryption, local history limits, and cleanup limits.
   - Acceptance: Documentation is accurate and does not overstate privacy guarantees.
   - Notes: Must stay consistent with actual implementation behavior.
 
@@ -34,7 +34,7 @@ Rule used here:
 
 - [x] T-001 - Initialize the Next.js App Router TypeScript app structure
   - Scope: Prepare the application base structure for app pages, shared components, and server-side utilities.
-  - Acceptance: The app structure is ready for auth, upload, validation, and BFF work.
+  - Acceptance: The app structure is ready for auth, upload, validation, BFF work, and upcoming history work.
   - Notes: Core `app/`, `components/`, `lib/`, and protected route structure are now in place for the V1 shell.
 
 ## Authentication
@@ -44,21 +44,33 @@ Rule used here:
   - Acceptance: Protected routes reject unauthenticated users and permit authenticated users.
   - Notes: Implemented with server-side `bcrypt` verification and a signed HTTP-only cookie.
 
-## Upload UI
+## App shell and tabs
+
+- [ ] T-029 - Create the authenticated two-tab application shell
+  - Scope: Replace the single primary view with two main tabs named `Traitement` and `Historique`.
+  - Acceptance: An authenticated user can switch between the processing flow and the local history flow without leaving the protected app.
+  - Notes: This is a V1 product change, not a V2 enhancement.
+
+## Treatment tab
 
 - [x] T-017 - Create the upload interface
   - Scope: Add audio file selection or drag-and-drop, show selected file metadata, and apply client-side format and size prechecks.
   - Acceptance: Unsupported files are rejected with clear messages before submission.
   - Notes: The current UI handles client preflight and hands off to the protected BFF route for server-side validation.
 
+- [ ] T-030 - Add required `first_name` and `last_name` fields to the treatment form
+  - Scope: Extend the treatment UI and BFF payload contract so the user must provide first name and last name before processing starts.
+  - Acceptance: Submission is blocked until both fields are present and the values are associated with the job.
+  - Notes: These fields are required for local history lookup in V1.
+
 - [x] T-018 - Display processing state to the user
   - Scope: Show states such as validating, encrypting, uploading, running, completed, and failed.
   - Acceptance: Users can understand where the job is in the flow.
   - Notes: Preflight states are implemented now; encryption and RunPod execution states will be added with the next tranche.
 
-- [ ] T-019 - Display raw and modified outputs
-  - Scope: Present `raw_text` and `modified_text` clearly after successful jobs.
-  - Acceptance: Both outputs are visible and easy to review.
+- [ ] T-019 - Display live processing results in the treatment tab
+  - Scope: Present `raw_text`, `modified_text`, and `result.json` clearly after a successful job.
+  - Acceptance: All three outputs are visible and easy to review directly after processing.
   - Notes: The UI must support human review rather than claim full automation accuracy.
 
 ## File validation
@@ -77,7 +89,7 @@ Rule used here:
 
 - [ ] T-006 - Generate unique `job_id`, `salt`, and AES-GCM nonce per file
   - Scope: Use secure random generation and ensure non-reuse across uploads.
-  - Acceptance: Repeated uploads never reuse the same key/nonce pair.
+  - Acceptance: Repeated uploads never reuse the same key or nonce pair.
   - Notes: `salt` is not secret; the master key is secret.
 
 - [ ] T-007 - Derive the per-file key with HKDF
@@ -93,7 +105,7 @@ Rule used here:
 ## RunPod mock client
 
 - [ ] T-027 - Implement a mock RunPod client for local flow validation
-  - Scope: Add a controlled mock response path for the BFF so auth, validation, UI, and export logic can be tested before the real endpoint exists.
+  - Scope: Add a controlled mock response path for the BFF so auth, validation, treatment UI, history storage, and export logic can be tested before the real endpoint exists.
   - Acceptance: The full app flow can be exercised locally without a live RunPod deployment.
   - Notes: This phase appears in `AGENTS.md` implementation order but is not explicitly broken out in the Excel task list.
 
@@ -150,6 +162,65 @@ Rule used here:
   - Acceptance: `modified_text` improves readability while preserving uncertain content with `[a verifier]` when needed.
   - Notes: OpenAI API and other external inference APIs are excluded from V1.
 
+## Local history storage
+
+- [ ] T-031 - Create the local `/storage/jobs/{job_id}` storage structure
+  - Scope: Add server-side storage utilities that create one directory per job under `/storage/jobs`.
+  - Acceptance: Each completed job has an isolated local folder identified by `job_id`.
+  - Notes: V1 should prefer file storage over a database.
+
+- [ ] T-032 - Save `metadata.json` for each historized job
+  - Scope: Persist `job_id`, `first_name`, `last_name`, `original_filename`, `created_at`, `duration_seconds` if available, `engine` if available, `status`, and generated file references.
+  - Acceptance: Every successful historized job includes a readable `metadata.json` with the minimum required fields.
+  - Notes: Missing optional fields should be omitted or set consistently.
+
+- [ ] T-033 - Save `raw.txt`, `modified.txt`, and `result.json` locally after processing
+  - Scope: Persist the text outputs and structured result returned by RunPod after a successful job.
+  - Acceptance: The three files are available locally for later viewing and download.
+  - Notes: These files must be saved by the BFF, not by the browser.
+
+- [ ] T-034 - Ensure original and encrypted audio are never historized
+  - Scope: Explicitly prevent local persistence of the original uploaded audio and the encrypted RunPod payload in `/storage/jobs`.
+  - Acceptance: Only text outputs and necessary metadata remain after processing.
+  - Notes: This is a privacy-critical storage rule for V1.
+
+## History tab
+
+- [ ] T-035 - Create the protected `Historique` tab UI
+  - Scope: Add the authenticated history view and connect it to local BFF-backed storage reads.
+  - Acceptance: An authenticated user can open the history tab and see previous jobs without any RunPod call.
+  - Notes: The history view must remain simple and desktop-friendly in V1.
+
+- [ ] T-036 - List local history records from `/storage/jobs`
+  - Scope: Read saved metadata from local storage and render prior treatments in the history tab.
+  - Acceptance: Previously saved jobs appear without relaunching processing.
+  - Notes: The list should rely on local BFF storage only and initially show only successful jobs.
+
+- [ ] T-037 - Add history search and filter by name, surname, filename, and date
+  - Scope: Support filtering by `first_name`, `last_name`, `original_filename`, exact `created_at` date, and `created_at` date range.
+  - Acceptance: The history list updates correctly for each filter type and date mode.
+  - Notes: Date filtering is explicitly expected in both exact-day and range form.
+
+- [ ] T-038 - Open a previous treatment from history
+  - Scope: Allow the user to open a saved job and review its stored outputs.
+  - Acceptance: A previous treatment can be reopened without relaunching RunPod.
+  - Notes: The reopened view should use local stored artifacts only.
+
+- [ ] T-039 - Download historized `raw.txt`, `modified.txt`, and `result.json`
+  - Scope: Add download actions for saved history files.
+  - Acceptance: The user can download each artifact individually from the history tab.
+  - Notes: This is separate from exporting the current live result view.
+
+- [ ] T-040 - Protect history routes, downloads, and file reads with auth
+  - Scope: Apply the same authenticated BFF protection model used for `/api/transcribe` to all history-related routes and file responses.
+  - Acceptance: Unauthenticated access to history listing, detail, or download endpoints is refused.
+  - Notes: History access must remain local and private.
+
+- [ ] T-041 - Prepare paginated history listing from V1
+  - Scope: Structure the history listing and BFF read layer so the UI can page through records without breaking when the local archive grows.
+  - Acceptance: The history contract supports pagination inputs and predictable ordering even if the initial page size is modest.
+  - Notes: This is meant to prevent a later history rewrite, not to over-engineer the first listing.
+
 ## Cleanup
 
 - [ ] T-016 - Guarantee worker cleanup in `finally`
@@ -159,9 +230,9 @@ Rule used here:
 
 ## Exports
 
-- [ ] T-020 - Export `raw.txt`, `modified.txt`, and `result.json`
+- [ ] T-020 - Export `raw.txt`, `modified.txt`, and `result.json` from the current result view
   - Scope: Add download actions from the processed result returned by the BFF.
-  - Acceptance: All three export artifacts are available and readable after a successful job.
+  - Acceptance: All three export artifacts are available and readable after a successful live job.
   - Notes: Export support is part of the V1 definition of done.
 
 ## Final QA
@@ -170,6 +241,10 @@ Rule used here:
   - Scope: Run the blocking test matrix, verify the security checklist, and validate all V1 definition-of-done criteria.
   - Acceptance: Blocking tests are passed and documented before declaring V1 ready.
   - Notes: This consolidates `TEST_PLAN.md`, `SECURITY_CHECKLIST.md`, and the DoD sheet.
+
+## Clarifications needed
+
+- `AGENTS.md` still names `ALLOW_CONCURRENT_JOBS`, while the current approved documentation set keeps `MAX_CONCURRENT_JOBS`. Reconfirm the final runtime variable name before implementing any new concurrency-dependent behavior.
 
 ## Deferred beyond V1
 

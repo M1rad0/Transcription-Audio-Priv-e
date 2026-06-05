@@ -14,13 +14,25 @@ Rules used here:
   - Steps: Install dependencies, run `npm run dev`, and open the local URL.
   - Expected result: The application is reachable locally and responds without startup errors.
   - Status: Not run
-  - Notes: Current repository inspection shows the app is still a starter scaffold.
+  - Notes: The repository already contains a partial local app shell.
 
 - [ ] QA-082 - Raw and modified outputs are displayed after a successful job
   - Steps: Submit a valid job, wait for success, and open the result view.
   - Expected result: `raw_text` and `modified_text` are both visible and reviewable.
   - Status: Not run
   - Notes: This validates the main review workflow.
+
+- [ ] QA-084 - A successful job creates a local history record
+  - Steps: Submit a valid treatment with first name, last name, and one supported audio file, then inspect the local history view and storage folder.
+  - Expected result: The job appears in `Historique` and `/storage/jobs/{job_id}` contains `metadata.json`, `raw.txt`, `modified.txt`, and `result.json`.
+  - Status: Not run
+  - Notes: Blocking V1 history test.
+
+- [ ] QA-096 - Failed jobs are not historized
+  - Steps: Force a processing failure after submission and inspect both the history view and `/storage/jobs`.
+  - Expected result: No failed job is added to local history storage.
+  - Status: Not run
+  - Notes: V1 history should contain successful jobs only.
 
 ## Security tests
 
@@ -29,6 +41,12 @@ Rules used here:
   - Expected result: The UI redirects to login or blocks access, and the API returns an auth error.
   - Status: Not run
   - Notes: Blocking V1 requirement.
+
+- [ ] QA-013 - History access is refused without authentication
+  - Steps: Attempt to open history routes, history data endpoints, and history download endpoints without a valid session.
+  - Expected result: Access is denied consistently and no stored result file is returned.
+  - Status: Not run
+  - Notes: History must be protected like `/api/transcribe`.
 
 - [ ] QA-011 - Files above 12 MB are rejected before RunPod
   - Steps: Authenticate, upload a file above 12 MB, and inspect behavior.
@@ -54,7 +72,7 @@ Rules used here:
   - Steps: Upload the same audio twice and compare generated `salt` and `audio_nonce` values in server-side test instrumentation.
   - Expected result: Both values differ between the two jobs.
   - Status: Not run
-  - Notes: This protects the AES-GCM key/nonce lifecycle.
+  - Notes: This protects the AES-GCM key and nonce lifecycle.
 
 - [ ] QA-021 - HKDF derivation matches between Next.js and Python
   - Steps: Use a fixed `MASTER_KEY_BASE64`, `salt`, and `job_id` in both implementations and compare derived keys.
@@ -138,6 +156,62 @@ Rules used here:
   - Status: Not run
   - Notes: Blocking cost-control test.
 
+## History lookup and download tests
+
+- [ ] QA-085 - `raw.txt` can be downloaded from history
+  - Steps: Complete one successful job, open it from `Historique`, and download `raw.txt`.
+  - Expected result: The downloaded file opens locally and matches the stored raw transcript.
+  - Status: Not run
+  - Notes: Must not trigger a new RunPod call.
+
+- [ ] QA-086 - `modified.txt` can be downloaded from history
+  - Steps: Complete one successful job, open it from `Historique`, and download `modified.txt`.
+  - Expected result: The downloaded file opens locally and matches the stored corrected transcript.
+  - Status: Not run
+  - Notes: Must not trigger a new RunPod call.
+
+- [ ] QA-087 - `result.json` can be downloaded from history
+  - Steps: Complete one successful job, open it from `Historique`, and download `result.json`.
+  - Expected result: The downloaded JSON is valid and matches the stored structured result.
+  - Status: Not run
+  - Notes: Must not trigger a new RunPod call.
+
+- [ ] QA-088 - History search works by last name
+  - Steps: Create at least two historized jobs with different last names, then filter by one last name.
+  - Expected result: Only matching records remain visible.
+  - Status: Not run
+  - Notes: First and last name tests are separated on purpose.
+
+- [ ] QA-089 - History search works by first name
+  - Steps: Create at least two historized jobs with different first names, then filter by one first name.
+  - Expected result: Only matching records remain visible.
+  - Status: Not run
+  - Notes: This validates the required identity search field.
+
+- [ ] QA-092 - History search works by original filename
+  - Steps: Create at least two historized jobs with different original filenames, then filter by one filename.
+  - Expected result: Only matching records remain visible.
+  - Status: Not run
+  - Notes: Filename matching behavior may later need exact-vs-partial clarification.
+
+- [ ] QA-093 - History search works by processing date
+  - Steps: Create historized jobs across at least two distinct dates or mock dates, then filter by one exact date.
+  - Expected result: Only records for the selected exact date are shown.
+  - Status: Not run
+  - Notes: This validates exact-day filtering.
+
+- [ ] QA-097 - History search works by date range
+  - Steps: Create historized jobs across at least three distinct dates or mock dates, then filter with a bounded date range.
+  - Expected result: Only records whose processing dates fall inside the selected range are shown.
+  - Status: Not run
+  - Notes: This validates range-based filtering.
+
+- [ ] QA-098 - History pagination remains stable as records grow
+  - Steps: Create enough historized jobs to exceed the default page size, then navigate across multiple pages.
+  - Expected result: Ordering stays predictable, no record is duplicated or lost between pages, and filtering still behaves correctly with pagination.
+  - Status: Not run
+  - Notes: Added to make sure pagination is prepared from V1.
+
 ## UI and export tests
 
 - [ ] QA-080 - Client-side format validation rejects unsupported files
@@ -146,19 +220,37 @@ Rules used here:
   - Status: Not run
   - Notes: Convenience validation only; server validation still must exist.
 
-- [ ] QA-083 - Export artifacts download correctly
-  - Steps: Complete a successful job and trigger all export actions.
+- [ ] QA-083 - Export artifacts download correctly from the live result view
+  - Steps: Complete a successful job and trigger all export actions from the treatment result view.
   - Expected result: `raw.txt`, `modified.txt`, and `result.json` all download and open correctly.
   - Status: Not run
   - Notes: Export support is part of the definition of done.
+
+## Local storage and privacy tests
+
+- [ ] QA-094 - Original audio is never stored in local history
+  - Steps: Complete a successful job, inspect `/storage/jobs/{job_id}`, and list all files created.
+  - Expected result: No original audio file is present in local history storage.
+  - Status: Not run
+  - Notes: Blocking privacy requirement.
+
+- [ ] QA-095 - Encrypted audio payload is never stored in local history
+  - Steps: Complete a successful job, inspect `/storage/jobs/{job_id}`, and review serialized metadata and stored artifacts.
+  - Expected result: No encrypted audio blob or payload snapshot is persisted.
+  - Status: Not run
+  - Notes: This complements the original-audio storage test.
 
 ## Documentation and privacy tests
 
 - [ ] QA-101 - Privacy documentation is accurate
   - Steps: Review the project docs against the real implementation behavior once coding exists.
-  - Expected result: The docs explicitly mention temporary worker decryption and avoid false claims of absolute secrecy.
+  - Expected result: The docs explicitly mention temporary worker decryption, local history limits, and avoid false claims of absolute secrecy.
   - Status: Not run
   - Notes: Important because documentation must match real behavior.
+
+## Clarifications needed
+
+- `AGENTS.md` still names `ALLOW_CONCURRENT_JOBS`, while the current approved documentation set keeps `MAX_CONCURRENT_JOBS`. Reconfirm the final runtime variable name before implementing new concurrency-dependent behavior.
 
 ## Deferred beyond V1
 

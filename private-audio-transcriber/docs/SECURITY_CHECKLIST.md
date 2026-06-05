@@ -32,6 +32,11 @@ Rules used here:
   - Verification: Call `/api/transcribe` without a valid session and confirm access is refused.
   - Notes: V1 uses a signed HTTP-only session cookie.
 
+- [ ] SEC-019 - Authentication is required before all history routes and downloads
+  - Risk covered: Unauthorized access to stored transcript results.
+  - Verification: Attempt unauthenticated access to history list, history detail, and download endpoints.
+  - Notes: History routes must be protected like `/api/transcribe`.
+
 - [ ] SEC-004 - File size validation blocks files above 12 MB
   - Risk covered: Excessive payload size, unexpected cost, and potential platform rejection.
   - Verification: Submit a file larger than 12 MB before encryption and confirm the BFF rejects it before any RunPod call.
@@ -70,6 +75,33 @@ Rules used here:
   - Risk covered: Sensitive temporary files remaining after success or failure.
   - Verification: Run both success and forced-error cleanup tests.
   - Notes: Cleanup status should be returned in the worker response.
+
+## Local history storage privacy
+
+- [ ] SEC-020 - Local history stores only text outputs and necessary metadata
+  - Risk covered: Excess data retention beyond the justified V1 workflow.
+  - Verification: Inspect `/storage/jobs/{job_id}` and confirm only `metadata.json`, `raw.txt`, `modified.txt`, and `result.json` are persisted.
+  - Notes: V1 should not add extra retained artifacts without explicit product review, and only successful jobs should be historized.
+
+- [ ] SEC-021 - Original audio is never stored in local history
+  - Risk covered: Sensitive source audio persisting after treatment.
+  - Verification: Inspect local job folders after successful processing and confirm no original audio file exists.
+  - Notes: This applies even if the upload was temporary in the request lifecycle.
+
+- [ ] SEC-022 - Encrypted audio is never stored in local history
+  - Risk covered: Retention of sensitive payload material beyond immediate transport needs.
+  - Verification: Inspect local job folders and serialized metadata for encrypted audio blobs or payload snapshots.
+  - Notes: The encrypted RunPod payload is also out of scope for local retention.
+
+- [ ] SEC-023 - History downloads are served only from local authenticated BFF storage
+  - Risk covered: Bypassing access control or accidentally triggering new external processing.
+  - Verification: Download history artifacts while authenticated, inspect the route behavior, and confirm no RunPod request is made.
+  - Notes: History retrieval must not relaunch processing.
+
+- [ ] SEC-024 - Local history remains local to the machine hosting the BFF
+  - Risk covered: Silent data propagation outside the intended local-first boundary.
+  - Verification: Review the implementation and runtime paths to confirm historical files are written only to local filesystem storage.
+  - Notes: A future remote sync feature would need an explicit product and security decision.
 
 ## Logging
 
@@ -111,3 +143,7 @@ Rules used here:
   - Risk covered: Unexpected data exfiltration and architectural drift.
   - Verification: Review network activity, code paths, and configured services used for `modified_text`.
   - Notes: The correction engine must be a lightweight local LLM inside the worker.
+
+## Clarifications needed
+
+- `AGENTS.md` still names `ALLOW_CONCURRENT_JOBS`, while the current approved documentation set keeps `MAX_CONCURRENT_JOBS`. Reconfirm the final runtime variable name before implementing new concurrency-dependent behavior.

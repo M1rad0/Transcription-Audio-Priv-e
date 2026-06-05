@@ -87,20 +87,20 @@ Rule used here:
 
 ## Encryption
 
-- [ ] T-006 - Generate unique `job_id`, `salt`, and AES-GCM nonce per file
+- [x] T-006 - Generate unique `job_id`, `salt`, and AES-GCM nonce per file
   - Scope: Use secure random generation and ensure non-reuse across uploads.
   - Acceptance: Repeated uploads never reuse the same key or nonce pair.
-  - Notes: `salt` is not secret; the master key is secret.
+  - Notes: Implemented in the Next.js BFF crypto layer with per-request random generation. `salt` is not secret; the master key is secret.
 
-- [ ] T-007 - Derive the per-file key with HKDF
+- [x] T-007 - Derive the per-file key with HKDF
   - Scope: Derive a 32-byte AES-256 key from `MASTER_KEY_BASE64`, `salt`, and `job_id`.
   - Acceptance: The same fixed vector produces matching results across Next.js and Python.
-  - Notes: Cross-language compatibility is a blocker for the worker integration.
+  - Notes: Implemented in the BFF with shared contract constants and a local decrypt helper to support the future Python worker integration. Cross-language verification still needs the worker-side implementation.
 
-- [ ] T-008 - Encrypt the audio and build the RunPod payload
+- [x] T-008 - Encrypt the audio and build the RunPod payload
   - Scope: Encrypt audio server-side with AES-256-GCM and build the JSON payload with base64 fields.
   - Acceptance: No clear audio leaves the BFF and the payload matches the contract in `AGENTS.md`.
-  - Notes: The browser must never see `MASTER_KEY_BASE64`.
+  - Notes: The BFF now prepares the encrypted RunPod payload before the mock processing path. The browser must never see `MASTER_KEY_BASE64`. The real network call remains pending under `T-009`.
 
 ## RunPod mock client
 

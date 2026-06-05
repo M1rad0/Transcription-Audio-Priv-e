@@ -15,7 +15,7 @@ export function formatBytes(bytes: number) {
 }
 
 export function formatDateTime(date: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("fr-FR", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);

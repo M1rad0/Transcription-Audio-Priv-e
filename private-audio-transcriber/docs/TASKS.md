@@ -6,7 +6,7 @@ Rule used here:
 
 - Excel task IDs are preserved when available.
 - New IDs were added only for gaps required by `AGENTS.md` or later validated V1 product decisions.
-- Checkboxes reflect documentation state only. No application code has been implemented in this documentation step.
+- Checkboxes reflect the current implementation tracking state of the project.
 
 ## Documentation setup
 
@@ -46,10 +46,10 @@ Rule used here:
 
 ## App shell and tabs
 
-- [ ] T-029 - Create the authenticated two-tab application shell
+- [x] T-029 - Create the authenticated two-tab application shell
   - Scope: Replace the single primary view with a protected sidebar navigation exposing `Traitement` and `Historique`.
   - Acceptance: An authenticated user can switch between the processing flow and the local history flow from the sidebar without leaving the protected app.
-  - Notes: This is a V1 product change, not a V2 enhancement.
+  - Notes: Implemented with a desktop-first sidebar and query-param based navigation on the protected root page.
 
 ## Treatment tab
 
@@ -58,20 +58,20 @@ Rule used here:
   - Acceptance: Unsupported files are rejected with clear messages before submission.
   - Notes: The current UI handles client preflight and hands off to the protected BFF route for server-side validation.
 
-- [ ] T-030 - Add required `first_name` and `last_name` fields to the treatment form
+- [x] T-030 - Add required `first_name` and `last_name` fields to the treatment form
   - Scope: Extend the treatment UI and BFF payload contract so the user must provide first name and last name before processing starts.
   - Acceptance: Submission is blocked until both fields are present and the values are associated with the job.
-  - Notes: These fields are required for local history lookup in V1.
+  - Notes: Implemented in the client form and enforced again in `/api/transcribe`.
 
 - [x] T-018 - Display processing state to the user
   - Scope: Show states such as validating, encrypting, uploading, running, completed, and failed.
   - Acceptance: Users can understand where the job is in the flow.
   - Notes: Preflight states are implemented now; encryption and RunPod execution states will be added with the next tranche.
 
-- [ ] T-019 - Display live processing results in the treatment tab
+- [x] T-019 - Display live processing results in the treatment tab
   - Scope: Present `raw_text`, `modified_text`, and `result.json` clearly after a successful job.
   - Acceptance: All three outputs are visible and easy to review directly after processing.
-  - Notes: The UI must support human review rather than claim full automation accuracy.
+  - Notes: Implemented with the current mock local processing step while the real RunPod path remains pending.
 
 ## File validation
 
@@ -104,10 +104,10 @@ Rule used here:
 
 ## RunPod mock client
 
-- [ ] T-027 - Implement a mock RunPod client for local flow validation
+- [x] T-027 - Implement a mock RunPod client for local flow validation
   - Scope: Add a controlled mock response path for the BFF so auth, validation, treatment UI, history storage, and export logic can be tested before the real endpoint exists.
   - Acceptance: The full app flow can be exercised locally without a live RunPod deployment.
-  - Notes: This phase appears in `AGENTS.md` implementation order but is not explicitly broken out in the Excel task list.
+  - Notes: Implemented as a local mock processing path inside the protected BFF route, with historized successful outputs.
 
 ## RunPod real client
 
@@ -164,62 +164,62 @@ Rule used here:
 
 ## Local history storage
 
-- [ ] T-031 - Create the local `/storage/jobs/{job_id}` storage structure
+- [x] T-031 - Create the local `/storage/jobs/{job_id}` storage structure
   - Scope: Add server-side storage utilities that create one directory per job under `/storage/jobs`.
   - Acceptance: Each completed job has an isolated local folder identified by `job_id`.
-  - Notes: V1 should prefer file storage over a database.
+  - Notes: Implemented under the local project `storage/jobs` directory and ignored from Git tracking.
 
-- [ ] T-032 - Save `metadata.json` for each historized job
+- [x] T-032 - Save `metadata.json` for each historized job
   - Scope: Persist `job_id`, `first_name`, `last_name`, `original_filename`, `created_at`, `duration_seconds` if available, `engine` if available, `status`, and generated file references.
   - Acceptance: Every successful historized job includes a readable `metadata.json` with the minimum required fields.
-  - Notes: Missing optional fields should be omitted or set consistently.
+  - Notes: Implemented for successful jobs in the local BFF storage layer.
 
-- [ ] T-033 - Save `raw.txt`, `modified.txt`, and `result.json` locally after processing
+- [x] T-033 - Save `raw.txt`, `modified.txt`, and `result.json` locally after processing
   - Scope: Persist the text outputs and structured result returned by RunPod after a successful job.
   - Acceptance: The three files are available locally for later viewing and download.
-  - Notes: These files must be saved by the BFF, not by the browser.
+  - Notes: Implemented by the BFF after the current mock processing step.
 
-- [ ] T-034 - Ensure original and encrypted audio are never historized
+- [x] T-034 - Ensure original and encrypted audio are never historized
   - Scope: Explicitly prevent local persistence of the original uploaded audio and the encrypted RunPod payload in `/storage/jobs`.
   - Acceptance: Only text outputs and necessary metadata remain after processing.
-  - Notes: This is a privacy-critical storage rule for V1.
+  - Notes: The current local history persists only metadata and text artifacts.
 
 ## History tab
 
-- [ ] T-035 - Create the protected `Historique` tab UI
+- [x] T-035 - Create the protected `Historique` tab UI
   - Scope: Add the authenticated history view and connect it to local BFF-backed storage reads.
   - Acceptance: An authenticated user can open the history tab and see previous jobs without any RunPod call.
-  - Notes: The history view must remain simple and desktop-friendly in V1.
+  - Notes: Implemented as a protected sidebar destination on the root page.
 
-- [ ] T-036 - List local history records from `/storage/jobs`
+- [x] T-036 - List local history records from `/storage/jobs`
   - Scope: Read saved metadata from local storage and render prior treatments in the history tab.
   - Acceptance: Previously saved jobs appear without relaunching processing.
-  - Notes: The list should rely on local BFF storage only and initially show only successful jobs.
+  - Notes: Implemented with local filesystem reads and newest-first ordering of successful jobs.
 
-- [ ] T-037 - Add history search and filter by name, surname, filename, and date
+- [x] T-037 - Add history search and filter by name, surname, filename, and date
   - Scope: Support filtering by `first_name`, `last_name`, `original_filename`, exact `created_at` date, and `created_at` date range.
   - Acceptance: The history list updates correctly for each filter type and date mode.
-  - Notes: Date filtering is explicitly expected in both exact-day and range form.
+  - Notes: Implemented with query-string driven filtering on the protected history view.
 
-- [ ] T-038 - Open a previous treatment from history
+- [x] T-038 - Open a previous treatment from history
   - Scope: Allow the user to open a saved job and review its stored outputs.
   - Acceptance: A previous treatment can be reopened without relaunching RunPod.
-  - Notes: The reopened view should use local stored artifacts only.
+  - Notes: Implemented through job selection in the history list and local detail loading.
 
-- [ ] T-039 - Download historized `raw.txt`, `modified.txt`, and `result.json`
+- [x] T-039 - Download historized `raw.txt`, `modified.txt`, and `result.json`
   - Scope: Add download actions for saved history files.
   - Acceptance: The user can download each artifact individually from the history tab.
-  - Notes: This is separate from exporting the current live result view.
+  - Notes: Implemented through authenticated BFF download links.
 
-- [ ] T-040 - Protect history routes, downloads, and file reads with auth
+- [x] T-040 - Protect history routes, downloads, and file reads with auth
   - Scope: Apply the same authenticated BFF protection model used for `/api/transcribe` to all history-related routes and file responses.
   - Acceptance: Unauthenticated access to history listing, detail, or download endpoints is refused.
-  - Notes: History access must remain local and private.
+  - Notes: The protected root page and download route now require a valid session.
 
-- [ ] T-041 - Prepare paginated history listing from V1
+- [x] T-041 - Prepare paginated history listing from V1
   - Scope: Structure the history listing and BFF read layer so the UI can page through records without breaking when the local archive grows.
   - Acceptance: The history contract supports pagination inputs and predictable ordering even if the initial page size is modest.
-  - Notes: This is meant to prevent a later history rewrite, not to over-engineer the first listing.
+  - Notes: Implemented with paginated local reads and navigation controls in the history view.
 
 ## Cleanup
 
@@ -230,10 +230,10 @@ Rule used here:
 
 ## Exports
 
-- [ ] T-020 - Export `raw.txt`, `modified.txt`, and `result.json` from the current result view
+- [x] T-020 - Export `raw.txt`, `modified.txt`, and `result.json` from the current result view
   - Scope: Add download actions from the processed result returned by the BFF.
   - Acceptance: All three export artifacts are available and readable after a successful live job.
-  - Notes: Export support is part of the V1 definition of done.
+  - Notes: Implemented for the current mock local processing result and reused by history downloads.
 
 ## Final QA
 

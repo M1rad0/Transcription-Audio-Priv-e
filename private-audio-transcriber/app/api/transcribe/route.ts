@@ -1,11 +1,29 @@
+import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/auth";
+import { saveCompletedJob } from "@/lib/jobs";
+import { buildMockTranscriptionResult } from "@/lib/mock-transcribe";
 import { reserveQuotaSlot } from "@/lib/quota";
 import {
   ALLOWED_AUDIO_EXTENSIONS,
   getMaxAudioSizeMb,
-  getRunpodConfigStatus,
   validateAudioFile,
 } from "@/lib/transcribe";
+
+function getRequiredText(formData: FormData, fieldName: string, label: string) {
+  const value = String(formData.get(fieldName) ?? "").trim();
+
+  if (!value) {
+    return {
+      error: `${label} est requis.`,
+      ok: false as const,
+    };
+  }
+
+  return {
+    ok: true as const,
+    value,
+  };
+}
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -28,6 +46,16 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const file = formData.get("file");
+  const firstName = getRequiredText(formData, "firstName", "Le prenom");
+  const lastName = getRequiredText(formData, "lastName", "Le nom");
+
+  if (!firstName.ok) {
+    return Response.json({ error: firstName.error }, { status: 400 });
+  }
+
+  if (!lastName.ok) {
+    return Response.json({ error: lastName.error }, { status: 400 });
+  }
 
   if (!(file instanceof File)) {
     return Response.json(
@@ -49,18 +77,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const runpod = getRunpodConfigStatus();
-
-  if (!runpod.isConfigured) {
-    return Response.json(
-      {
-        error: "L’intégration RunPod n’est pas encore configurée.",
-        missingEnv: runpod.missing,
-      },
-      { status: 503 },
-    );
-  }
-
   const reservation = reserveQuotaSlot();
 
   if (!reservation.ok) {
@@ -73,15 +89,55 @@ export async function POST(request: Request) {
   }
 
   try {
+    const jobId = `job_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const createdAt = new Date().toISOString();
+    const result = buildMockTranscriptionResult({
+      fileName: file.name,
+      fileSize: file.size,
+      firstName: firstName.value,
+      jobId,
+      lastName: lastName.value,
+    });
+
+    await saveCompletedJob({
+      createdAt,
+      durationSeconds: result.duration_seconds,
+      engine: result.engine,
+      firstName: firstName.value,
+      jobId,
+      lastName: lastName.value,
+      modifiedText: result.modified_text,
+      originalFilename: file.name,
+      rawText: result.raw_text,
+      result,
+    });
+
     return Response.json(
       {
-        error: "La validation BFF est prête, mais le chiffrement et l’exécution RunPod seront implémentés à l’étape suivante.",
-        filename: file.name,
-        maxAudioSizeMb: getMaxAudioSizeMb(),
-        size: file.size,
-        step: "bff-guard-ready",
+        createdAt,
+        downloads: {
+          modified: `/api/history/download?jobId=${jobId}&artifact=modified`,
+          raw: `/api/history/download?jobId=${jobId}&artifact=raw`,
+          result: `/api/history/download?jobId=${jobId}&artifact=result`,
+        },
+        firstName: firstName.value,
+        jobId,
+        lastName: lastName.value,
+        mode: "mock-local",
+        modifiedText: result.modified_text,
+        rawText: result.raw_text,
+        result,
+        status: "success",
       },
-      { status: 501 },
+      { status: 200 },
+    );
+  } catch {
+    return Response.json(
+      {
+        error:
+          "Le traitement local n a pas pu etre enregistre dans l historique.",
+      },
+      { status: 500 },
     );
   } finally {
     reservation.release();

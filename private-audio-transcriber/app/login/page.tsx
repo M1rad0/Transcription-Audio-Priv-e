@@ -1,8 +1,8 @@
-import { redirectIfAuthenticated } from "@/lib/auth";
+import { LoginForm } from "@/components/auth/login-form";
 import { Card } from "@/components/ui/card";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { StatusPill } from "@/components/ui/status-pill";
-import { LoginForm } from "@/components/auth/login-form";
+import { redirectIfAuthenticated } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +18,10 @@ export default async function LoginPage() {
             <div className="mt-6 space-y-3">
               <StatusPill tone="success">Acces securise</StatusPill>
               <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                Transcription Audio Privée
+                Transcription Audio Privee
               </h1>
               <p className="mx-auto max-w-sm text-sm leading-6 text-[var(--muted-strong)] sm:text-base">
-                Connectez-vous pour accéder à l'espace local protégé.
+                Connectez-vous pour acceder a votre espace local protege.
               </p>
             </div>
 

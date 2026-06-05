@@ -20,10 +20,10 @@ export function LogoMark({ className, compact = false }: LogoMarkProps) {
       {!compact ? (
         <div className="space-y-1">
           <p className="text-[0.68rem] font-mono uppercase tracking-[0.32em] text-sky-700/70">
-            Private Workflow
+            Flux prive
           </p>
           <p className="text-lg font-semibold tracking-tight text-slate-900">
-            Audio Transcriber
+            Transcription Audio
           </p>
         </div>
       ) : null}

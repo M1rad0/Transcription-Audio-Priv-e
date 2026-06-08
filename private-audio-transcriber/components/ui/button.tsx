@@ -7,9 +7,9 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   ghost:
-    "border border-slate-200 bg-white text-slate-700 hover:border-sky-200 hover:bg-slate-50",
+    "border border-slate-200 bg-white text-slate-700 hover:border-sky-200 hover:bg-sky-50",
   primary:
-    "border border-sky-200 bg-[linear-gradient(135deg,#38bdf8,#0ea5e9)] text-white shadow-[0_14px_28px_rgba(14,165,233,0.18)] hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(14,165,233,0.24)]",
+    "border border-sky-500 bg-sky-500 text-white shadow-sm shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-md hover:shadow-sky-200/80",
   secondary:
     "border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
 };

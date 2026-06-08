@@ -60,36 +60,38 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       : null;
 
   return (
-    <main className="box-border min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#eef4f9_100%)] px-4 py-4 sm:px-6 lg:h-screen lg:overflow-hidden lg:px-8">
-      <div className="mx-auto grid w-full max-w-[1600px] gap-4 lg:h-full lg:grid-cols-[20.5rem_minmax(0,1fr)]">
+    <main className="box-border h-screen overflow-hidden bg-white px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto grid h-full w-full max-w-[1600px] gap-4 lg:grid-cols-[20.5rem_minmax(0,1fr)]">
         <SidebarNav currentTab={tab} username={session.username} />
 
-        <section className="grid min-h-0 gap-4">
+        <section className="grid min-h-0 gap-4 overflow-hidden">
           {tab === "treatment" ? (
             <Card
               actions={
-                <div className="flex flex-wrap justify-end gap-1.5 text-xs text-[var(--muted)]">
+                <div className="flex flex-wrap justify-end gap-1.5 text-xs text-slate-500">
                   <StatusPill tone="success">Mode mock local</StatusPill>
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+                  <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1.5">
                     Formats {ALLOWED_AUDIO_EXTENSIONS.join(", ")}
                   </span>
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+                  <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1.5">
                     Max {maxAudioSizeMb} Mo
                   </span>
                 </div>
               }
-              className="bg-white lg:flex lg:h-[calc(100vh-2rem)] lg:flex-col lg:overflow-hidden"
+              className="flex h-[calc(100vh-2rem)] flex-col overflow-hidden bg-white"
               eyebrow="Traitement"
               title="Lancer une transcription"
             >
-              <div className="grid w-full gap-4 lg:min-h-0 lg:flex-1 lg:grid-rows-[auto_minmax(0,1fr)]">
-                <p className="text-sm leading-6 text-[var(--muted-strong)]">
+              <div className="grid w-full flex-1 min-h-0 gap-4 overflow-hidden lg:grid-rows-[auto_minmax(0,1fr)]">
+                <p className="text-sm leading-6 text-slate-600">
                   Importez un audio, vérifiez le résultat, puis retrouvez-le ensuite dans l’historique local.
                 </p>
-                <PreflightUploadCard
-                  allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}
-                  maxAudioSizeMb={maxAudioSizeMb}
-                />
+                <div className="min-h-0 overflow-hidden">
+                  <PreflightUploadCard
+                    allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}
+                    maxAudioSizeMb={maxAudioSizeMb}
+                  />
+                </div>
               </div>
             </Card>
           ) : history ? (

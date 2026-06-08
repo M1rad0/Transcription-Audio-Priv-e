@@ -1,8 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/auth";
+import {
+  createEncryptedRunpodPayload,
+  getEncryptionConfigStatus,
+} from "@/lib/crypto";
 import { saveCompletedJob } from "@/lib/jobs";
 import { buildMockTranscriptionResult } from "@/lib/mock-transcribe";
 import { reserveQuotaSlot } from "@/lib/quota";
+import { buildRunpodRequestEnvelope } from "@/lib/runpod";
 import {
   ALLOWED_AUDIO_EXTENSIONS,
   getMaxAudioSizeMb,
@@ -77,6 +81,21 @@ export async function POST(request: Request) {
     );
   }
 
+  const encryptionConfig = getEncryptionConfigStatus();
+
+  if (!encryptionConfig.isConfigured) {
+    const details = [...encryptionConfig.missing, ...encryptionConfig.issues].join(", ");
+
+    return Response.json(
+      {
+        error: details
+          ? `Le chiffrement BFF n’est pas prêt : ${details}`
+          : "Le chiffrement BFF n’est pas prêt.",
+      },
+      { status: 503 },
+    );
+  }
+
   const reservation = reserveQuotaSlot();
 
   if (!reservation.ok) {
@@ -89,13 +108,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const jobId = `job_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const audioBuffer = Buffer.from(await file.arrayBuffer());
+    const encryptedRequest = createEncryptedRunpodPayload({
+      audioBuffer,
+      fileName: file.name,
+    });
+    const runpodRequest = buildRunpodRequestEnvelope(encryptedRequest.payload);
     const createdAt = new Date().toISOString();
     const result = buildMockTranscriptionResult({
-      fileName: file.name,
+      fileName: runpodRequest.input.filename,
       fileSize: file.size,
       firstName: firstName.value,
-      jobId,
+      jobId: runpodRequest.input.job_id,
       lastName: lastName.value,
     });
 
@@ -104,7 +128,7 @@ export async function POST(request: Request) {
       durationSeconds: result.duration_seconds,
       engine: result.engine,
       firstName: firstName.value,
-      jobId,
+      jobId: runpodRequest.input.job_id,
       lastName: lastName.value,
       modifiedText: result.modified_text,
       originalFilename: file.name,
@@ -116,12 +140,12 @@ export async function POST(request: Request) {
       {
         createdAt,
         downloads: {
-          modified: `/api/history/download?jobId=${jobId}&artifact=modified`,
-          raw: `/api/history/download?jobId=${jobId}&artifact=raw`,
-          result: `/api/history/download?jobId=${jobId}&artifact=result`,
+          modified: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=modified`,
+          raw: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=raw`,
+          result: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=result`,
         },
         firstName: firstName.value,
-        jobId,
+        jobId: runpodRequest.input.job_id,
         lastName: lastName.value,
         mode: "mock-local",
         modifiedText: result.modified_text,
@@ -135,7 +159,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Le traitement local n’a pas pu être enregistré dans l’historique.",
+          "Le chiffrement ou la préparation du payload RunPod a échoué.",
       },
       { status: 500 },
     );

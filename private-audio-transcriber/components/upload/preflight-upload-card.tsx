@@ -215,11 +215,12 @@ export function PreflightUploadCard({
 
   return (
     <Card
-      className="bg-white text-left lg:h-full lg:overflow-auto"
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-left"
       description="Ajoutez le fichier et les informations minimales avant de lancer le traitement."
       eyebrow="Traitement"
       title="Nouveau fichier audio"
     >
+      <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto pr-1">
       <form
         className="grid gap-4 lg:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] lg:items-start"
         onSubmit={handleSubmit}
@@ -285,19 +286,19 @@ export function PreflightUploadCard({
             <p className="max-w-md text-lg font-semibold tracking-tight text-slate-900">
               Cliquez pour choisir un fichier audio.
             </p>
-            <p className="mt-2 max-w-md text-sm leading-6 text-[var(--muted)]">
+            <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
               Taille maximale : {maxAudioSizeMb} Mo.
             </p>
           </label>
         </div>
 
         <div className="grid gap-3 lg:content-start">
-          <div className="grid gap-3 rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+          <div className="grid gap-3 rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
             <div className="space-y-2">
               <p className="text-sm font-medium text-slate-800">
                 Fichier sélectionné
               </p>
-              <p className="break-words text-sm text-[var(--muted-strong)]">
+              <p className="break-words text-sm text-slate-600">
                 {file
                   ? `${file.name} (${formatBytes(file.size)})`
                   : "Aucun fichier sélectionné pour le moment."}
@@ -315,7 +316,7 @@ export function PreflightUploadCard({
           </div>
 
           {uploadState ? (
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
               <div className="mb-2">
                 <StatusPill tone={uploadState.tone}>
                   {uploadState.tone === "danger"
@@ -327,14 +328,14 @@ export function PreflightUploadCard({
                         : "En cours"}
                 </StatusPill>
               </div>
-              <p className="text-sm leading-6 text-[var(--muted-strong)]">
+              <p className="text-sm leading-6 text-slate-600">
                 {uploadState.message}
               </p>
             </div>
           ) : (
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/80">
               <p className="text-sm font-medium text-slate-800">État</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted-strong)]">
+              <p className="mt-2 text-sm leading-6 text-slate-600">
                 Ajoutez le fichier et les informations demandées, puis lancez le traitement.
               </p>
             </div>
@@ -349,7 +350,7 @@ export function PreflightUploadCard({
               <p className="text-lg font-semibold text-slate-900">
                 Résultat disponible pour {uploadResult.firstName} {uploadResult.lastName}
               </p>
-              <p className="mt-1 text-sm text-[var(--muted)]">
+              <p className="mt-1 text-sm text-slate-500">
                 Job {uploadResult.jobId} enregistré dans l’historique local.
               </p>
             </div>
@@ -382,6 +383,7 @@ export function PreflightUploadCard({
           </div>
         </div>
       ) : null}
+      </div>
     </Card>
   );
 }

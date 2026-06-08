@@ -112,7 +112,7 @@ Rule used here:
 ## RunPod real client
 
 - [ ] T-009 - Call RunPod only from the BFF
-  - Scope: Implement the server-side RunPod client with `RUNPOD_API_KEY` and `RUNPOD_ENDPOINT_ID`.
+  - Scope: Implement the server-side worker client with `RUNPOD_API_KEY`, `RUNPOD_WHISPER_ENDPOINT_ID`, and `RUNPOD_LLM_ENDPOINT_ID`, while also supporting local endpoint mode for each stage.
   - Acceptance: The browser never calls RunPod directly and no secret leaks into frontend code.
   - Notes: This is a security and cost-control requirement, not only a transport choice.
 
@@ -133,34 +133,39 @@ Rule used here:
 
 ## Python worker
 
-- [ ] T-002 - Create the `runpod-worker` structure
+- [x] T-002 - Create the `runpod-worker` structure
   - Scope: Add the worker module layout, core files, and packaging scaffold described in `AGENTS.md`.
   - Acceptance: The worker codebase structure exists and matches the intended responsibilities.
-  - Notes: The repository does not contain the worker yet.
+  - Notes: Implemented with `handler.py`, `crypto_utils.py`, `transcriber.py`, `model_utils.py`, `Dockerfile`, `requirements.txt`, and worker-facing README instructions.
 
-- [ ] T-012 - Create the worker Docker image definition
-  - Scope: Add the Dockerfile and requirements for Python, ffmpeg, RunPod SDK, `faster-whisper`, and the local LLM dependencies.
+- [x] T-042 - Create the dedicated `runpod-llm-worker` structure
+  - Scope: Add a second worker dedicated to text restructuring so the BFF can chain Whisper then LLM as separate stages.
+  - Acceptance: The LLM worker can accept `raw_text` and return `modified_text` through the same serverless-style input contract.
+  - Notes: Implemented with `handler.py`, `llm_corrector.py`, `model_utils.py`, `Dockerfile`, `requirements.txt`, and worker-facing README instructions.
+
+- [x] T-012 - Create the worker Docker image definition
+  - Scope: Add the Dockerfile and requirements for Python, ffmpeg, RunPod SDK, and `faster-whisper`.
   - Acceptance: The worker image builds successfully.
-  - Notes: Initial defaults are `large-v3` for Whisper and `Qwen2.5-3B-Instruct` for the local corrector.
+  - Notes: Dockerfile and Python dependency set are in place. The worker is now trimmed to a single-model strategy built around Whisper only, with cached-model fail-fast defaults to avoid accidental runtime downloads. Live image build validation remains part of the integration phase.
 
-- [ ] T-013 - Decrypt audio in `/tmp/job_xxx`
+- [x] T-013 - Decrypt audio in `/tmp/job_xxx`
   - Scope: Reproduce the HKDF derivation, decrypt with AES-GCM, and write the temporary clear audio file only inside a job-specific temp directory.
   - Acceptance: A payload produced by the BFF can be decrypted and used for transcription.
-  - Notes: Cleanup must happen even on failure.
+  - Notes: Implemented in the worker crypto layer and handler orchestration. Cross-runtime validation against a real BFF payload still needs an end-to-end smoke test.
 
 ## faster-whisper integration
 
-- [ ] T-014 - Integrate `faster-whisper` as the V1 transcription engine
+- [x] T-014 - Integrate `faster-whisper` as the V1 transcription engine
   - Scope: Load the configured Whisper model, transcribe the original audio, and produce `raw_text` plus timestamped segments.
   - Acceptance: The worker returns coherent `raw_text` and segment data for valid input audio.
-  - Notes: Audio enhancement and double transcription remain out of scope.
+  - Notes: Implemented in the worker transcriber module with configurable device, compute type, and model name. Audio enhancement and double transcription remain out of scope.
 
-## Local LLM correction
+## Text restructuring
 
-- [ ] T-015 - Add a lightweight local LLM corrector
+- [x] T-015 - Add a lightweight local LLM corrector
   - Scope: Apply the strict correction prompt and return `modified_text` without adding new information or changing meaning.
   - Acceptance: `modified_text` improves readability while preserving uncertain content with `[a verifier]` when needed.
-  - Notes: OpenAI API and other external inference APIs are excluded from V1.
+  - Notes: Implemented as a dedicated second worker that can run either on RunPod or behind a local endpoint, instead of sharing the Whisper worker.
 
 ## Local history storage
 
@@ -223,10 +228,10 @@ Rule used here:
 
 ## Cleanup
 
-- [ ] T-016 - Guarantee worker cleanup in `finally`
+- [x] T-016 - Guarantee worker cleanup in `finally`
   - Scope: Delete `/tmp/job_xxx` after both success and failure paths and report cleanup status in the result.
   - Acceptance: No job temp directory remains after processing.
-  - Notes: This is a privacy and security blocker.
+  - Notes: Implemented in the worker handler with cleanup status returned in both success and error payloads. End-to-end operational verification remains part of final QA.
 
 ## Exports
 

@@ -1,15 +1,16 @@
 import { getAuthConfigStatus } from "@/lib/auth";
+import { getPipelineConfigStatus } from "@/lib/pipeline";
 import { getQuotaSnapshot } from "@/lib/quota";
-import { getRunpodConfigStatus } from "@/lib/transcribe";
 
 export async function GET() {
   const auth = getAuthConfigStatus();
-  const runpod = getRunpodConfigStatus();
+  const pipeline = getPipelineConfigStatus();
 
   return Response.json({
     authConfigured: auth.isConfigured,
+    pipelineMode: pipeline.modeLabel,
     quota: getQuotaSnapshot(),
-    runpodConfigured: runpod.isConfigured,
+    runpodConfigured: pipeline.isConfigured,
     status: "ok",
     timestamp: new Date().toISOString(),
   });

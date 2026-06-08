@@ -1,0 +1,4 @@
+cryptography>=43.0.1
+faster-whisper>=1.1.0
+huggingface-hub>=0.26.2
+runpod>=1.7.7

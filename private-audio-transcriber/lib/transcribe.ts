@@ -53,7 +53,8 @@ export function validateAudioFile(file: File) {
 export function getRunpodConfigStatus() {
   const missing = [
     !process.env.RUNPOD_API_KEY ? "RUNPOD_API_KEY" : null,
-    !process.env.RUNPOD_ENDPOINT_ID ? "RUNPOD_ENDPOINT_ID" : null,
+    !process.env.RUNPOD_WHISPER_ENDPOINT_ID ? "RUNPOD_WHISPER_ENDPOINT_ID" : null,
+    !process.env.RUNPOD_LLM_ENDPOINT_ID ? "RUNPOD_LLM_ENDPOINT_ID" : null,
     !process.env.MASTER_KEY_BASE64 ? "MASTER_KEY_BASE64" : null,
   ].filter((value): value is string => Boolean(value));
 

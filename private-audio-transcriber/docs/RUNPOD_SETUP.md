@@ -39,10 +39,10 @@ Source priority:
   - Verify in RunPod: The endpoint timeout is explicitly configured and tested with realistic audio.
   - Notes: The timeout value remains deployment-configurable. Benchmark realistic files before fixing the production value.
 
-- [ ] RP-007 - Choose a GPU suitable for `faster-whisper` plus a lightweight local LLM
-  - Why: The worker must handle transcription and correction within acceptable time and VRAM limits.
+- [ ] RP-007 - Choose a GPU suitable for the Whisper worker
+  - Why: The transcription worker must handle audio within acceptable time and VRAM limits without overpaying for unused capacity.
   - Verify in RunPod: Benchmark at least one target GPU profile and record cost versus latency.
-  - Notes: Initial model defaults are `large-v3` for Whisper and `Qwen2.5-3B-Instruct` for correction, so GPU selection must account for those defaults.
+  - Notes: The Whisper worker is intentionally isolated so it can keep a single cached model strategy.
 
 - [ ] RP-008 - Keep model sourcing local to the worker environment
   - Why: V1 allows model download or cache usage from Hugging Face Hub, but not external inference endpoints.
@@ -66,35 +66,54 @@ Source priority:
 
 ## Worker environment variables
 
-Required worker-side variables:
+Required Whisper worker-side variables:
 
 - `MASTER_KEY_BASE64`
 - `WHISPER_MODEL=large-v3`
-- `LLM_MODEL=Qwen2.5-3B-Instruct`
 
-Optional worker-side variables:
+Optional Whisper worker-side variables:
 
-- any model cache path, language default, or logging controls introduced later by implementation
+- `WHISPER_MODEL_PATH=` explicit local path if not using the standard cached-model location
+- `WHISPER_DEVICE=auto`
+- `WHISPER_COMPUTE_TYPE=float16`
+- `WHISPER_BEAM_SIZE=5`
+- `RUNPOD_PREFER_CACHED_MODELS=true`
+- `RUNPOD_REQUIRE_CACHED_MODELS=true`
+- any additional logging controls introduced later by implementation
+
+Required LLM worker-side variables:
+
+- `LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct`
+
+Optional LLM worker-side variables:
+
+- `LLM_MODEL_PATH=` explicit local path if not using the standard cached-model location
+- `LLM_DEVICE_MAP=auto`
+- `LLM_INPUT_CHAR_LIMIT=12000`
+- `LLM_MAX_NEW_TOKENS=1200`
+- `RUNPOD_PREFER_CACHED_MODELS=true`
+- `RUNPOD_REQUIRE_CACHED_MODELS=true`
 
 Notes:
 
 - `AGENTS.md` explicitly requires `MASTER_KEY_BASE64`.
-- Model names remain configurable, but the documented initial defaults are `large-v3` and `Qwen2.5-3B-Instruct`.
+- Model names remain configurable, but the deployment can now be split between a Whisper endpoint and an LLM endpoint.
 
 ## Deployment steps
 
-1. Prepare the worker codebase and Docker image definition.
-2. Build the worker image and confirm it starts locally or in CI without packaging errors.
-3. Push the image to the chosen container registry.
-4. Create a RunPod Serverless custom endpoint from that image.
-5. Enable FlashBoot if the option is available.
-6. Set `workersMin=0`.
-7. Set `workersMax=1`.
-8. Configure a strict execution timeout.
-9. Configure worker environment variables, including `MASTER_KEY_BASE64`.
-10. Configure billing alerts manually in RunPod.
-11. Send a controlled encrypted test job from the BFF or a test harness.
-12. Inspect logs and confirm no sensitive content appears.
+1. Prepare the Whisper worker codebase and Docker image definition.
+2. Build the Whisper worker image and confirm it starts locally or in CI without packaging errors.
+3. Push the Whisper image to the chosen container registry.
+4. Create a RunPod Serverless custom endpoint from that image if Whisper will run on RunPod.
+5. Prepare the LLM worker image and create its endpoint if restructuring will also run on RunPod.
+6. Enable FlashBoot if the option is available on each endpoint.
+7. Set `workersMin=0`.
+8. Set `workersMax=1`.
+9. Configure a strict execution timeout.
+10. Configure worker environment variables, including `MASTER_KEY_BASE64` for Whisper.
+11. Configure billing alerts manually in RunPod.
+12. Send a controlled encrypted test job from the BFF or a test harness.
+13. Inspect logs and confirm no sensitive content appears.
 
 ## Testing steps
 

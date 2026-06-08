@@ -7,7 +7,7 @@ export type MockTranscriptionResult = {
   generated_by: "mock-local-bff";
   job_id: string;
   language: "fr";
-  mode: "mock-local";
+  mode: "Mode mock local";
   modified_text: string;
   raw_text: string;
   segments: Array<{
@@ -56,7 +56,7 @@ export function buildMockTranscriptionResult({
     generated_by: "mock-local-bff",
     job_id: jobId,
     language: "fr",
-    mode: "mock-local",
+    mode: "Mode mock local",
     modified_text: modifiedText,
     raw_text: rawText,
     segments: [

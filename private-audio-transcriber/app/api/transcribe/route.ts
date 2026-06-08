@@ -1,12 +1,13 @@
 import { getSession } from "@/lib/auth";
 import {
   createEncryptedRunpodPayload,
+  generateJobId,
   getEncryptionConfigStatus,
 } from "@/lib/crypto";
 import { saveCompletedJob } from "@/lib/jobs";
 import { buildMockTranscriptionResult } from "@/lib/mock-transcribe";
+import { getPipelineConfigStatus, runProcessingPipeline } from "@/lib/pipeline";
 import { reserveQuotaSlot } from "@/lib/quota";
-import { buildRunpodRequestEnvelope } from "@/lib/runpod";
 import {
   ALLOWED_AUDIO_EXTENSIONS,
   getMaxAudioSizeMb,
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const file = formData.get("file");
-  const firstName = getRequiredText(formData, "firstName", "Le prénom");
+  const firstName = getRequiredText(formData, "firstName", "Le prenom");
   const lastName = getRequiredText(formData, "lastName", "Le nom");
 
   if (!firstName.ok) {
@@ -81,16 +82,29 @@ export async function POST(request: Request) {
     );
   }
 
+  const pipelineConfig = getPipelineConfigStatus();
+
+  if (!pipelineConfig.isConfigured) {
+    return Response.json(
+      {
+        error:
+          pipelineConfig.issues.join(" ") ||
+          "La pipeline de workers n'est pas configuree.",
+      },
+      { status: 503 },
+    );
+  }
+
   const encryptionConfig = getEncryptionConfigStatus();
 
-  if (!encryptionConfig.isConfigured) {
+  if (!pipelineConfig.isMockFallback && !encryptionConfig.isConfigured) {
     const details = [...encryptionConfig.missing, ...encryptionConfig.issues].join(", ");
 
     return Response.json(
       {
         error: details
-          ? `Le chiffrement BFF n’est pas prêt : ${details}`
-          : "Le chiffrement BFF n’est pas prêt.",
+          ? `Le chiffrement BFF n'est pas pret : ${details}`
+          : "Le chiffrement BFF n'est pas pret.",
       },
       { status: 503 },
     );
@@ -108,27 +122,32 @@ export async function POST(request: Request) {
   }
 
   try {
-    const audioBuffer = Buffer.from(await file.arrayBuffer());
-    const encryptedRequest = createEncryptedRunpodPayload({
-      audioBuffer,
-      fileName: file.name,
-    });
-    const runpodRequest = buildRunpodRequestEnvelope(encryptedRequest.payload);
     const createdAt = new Date().toISOString();
-    const result = buildMockTranscriptionResult({
-      fileName: runpodRequest.input.filename,
-      fileSize: file.size,
-      firstName: firstName.value,
-      jobId: runpodRequest.input.job_id,
-      lastName: lastName.value,
-    });
+    const result = pipelineConfig.isMockFallback
+      ? buildMockTranscriptionResult({
+          fileName: file.name,
+          fileSize: file.size,
+          firstName: firstName.value,
+          jobId: generateJobId(),
+          lastName: lastName.value,
+        })
+      : await (async () => {
+          const audioBuffer = Buffer.from(await file.arrayBuffer());
+          const encryptedRequest = createEncryptedRunpodPayload({
+            audioBuffer,
+            fileName: file.name,
+          });
+
+          return runProcessingPipeline(encryptedRequest.payload);
+        })();
+    const jobId = result.job_id;
 
     await saveCompletedJob({
       createdAt,
       durationSeconds: result.duration_seconds,
       engine: result.engine,
       firstName: firstName.value,
-      jobId: runpodRequest.input.job_id,
+      jobId,
       lastName: lastName.value,
       modifiedText: result.modified_text,
       originalFilename: file.name,
@@ -140,14 +159,17 @@ export async function POST(request: Request) {
       {
         createdAt,
         downloads: {
-          modified: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=modified`,
-          raw: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=raw`,
-          result: `/api/history/download?jobId=${runpodRequest.input.job_id}&artifact=result`,
+          modified: `/api/history/download?jobId=${jobId}&artifact=modified`,
+          raw: `/api/history/download?jobId=${jobId}&artifact=raw`,
+          result: `/api/history/download?jobId=${jobId}&artifact=result`,
         },
         firstName: firstName.value,
-        jobId: runpodRequest.input.job_id,
+        jobId,
         lastName: lastName.value,
-        mode: "mock-local",
+        mode:
+          "mode" in result && typeof result.mode === "string"
+            ? result.mode
+            : pipelineConfig.modeLabel,
         modifiedText: result.modified_text,
         rawText: result.raw_text,
         result,
@@ -155,11 +177,13 @@ export async function POST(request: Request) {
       },
       { status: 200 },
     );
-  } catch {
+  } catch (error) {
     return Response.json(
       {
         error:
-          "Le chiffrement ou la préparation du payload RunPod a échoué.",
+          error instanceof Error
+            ? error.message
+            : "Le traitement serveur a echoue.",
       },
       { status: 500 },
     );

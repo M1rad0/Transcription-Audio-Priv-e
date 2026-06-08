@@ -5,6 +5,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { PreflightUploadCard } from "@/components/upload/preflight-upload-card";
 import { requireSession } from "@/lib/auth";
 import { getStoredJob, listStoredJobs } from "@/lib/jobs";
+import { getPipelineConfigStatus } from "@/lib/pipeline";
 import { ALLOWED_AUDIO_EXTENSIONS, getMaxAudioSizeMb } from "@/lib/transcribe";
 import { parsePositiveInt } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const tab = getSingleValue(params.tab) === "history" ? "history" : "treatment";
   const maxAudioSizeMb = getMaxAudioSizeMb();
+  const pipelineConfig = getPipelineConfigStatus();
 
   const historyFilters = {
     date: getSingleValue(params.date) ?? "",
@@ -69,7 +71,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <Card
               actions={
                 <div className="flex flex-wrap justify-end gap-1.5 text-xs text-slate-500">
-                  <StatusPill tone="success">Mode mock local</StatusPill>
+                  <StatusPill tone={pipelineConfig.isMockFallback ? "warning" : "success"}>
+                    {pipelineConfig.modeLabel}
+                  </StatusPill>
                   <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1.5">
                     Formats {ALLOWED_AUDIO_EXTENSIONS.join(", ")}
                   </span>
@@ -90,6 +94,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <PreflightUploadCard
                     allowedExtensions={[...ALLOWED_AUDIO_EXTENSIONS]}
                     maxAudioSizeMb={maxAudioSizeMb}
+                    pipelineModeLabel={pipelineConfig.modeLabel}
                   />
                 </div>
               </div>
